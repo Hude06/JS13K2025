@@ -1,0 +1,31 @@
+{
+  "name": "js13k2025",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "main": "npx live-server ./minified",
+    "kill": "rm -rf minified",
+    "make": "mkdir -p minified/assets && esbuild game.js --bundle --outfile=./minified/game.js && cp ./mini.html ./minified/index.html && cp ./ga.min.js ./minified/ga.min.js && cp plugins.js ./minified/plugins.js && cp ./assets/* ./minified/assets",
+    "googlify": "google-closure-compiler --js --language_in=ECMASCRIPT5 ./minified/plugins.js --js_output_file ./minified/plugins.js && google-closure-compiler --js ./minified/game.js --js_output_file ./minified/game.js",
+    "uglify": "uglifyjs --output ./minified/game.js --compress --mangle -- ./minified/game.js && uglifyjs --output ./minified/plugins.js --compress --mangle -- ./minified/plugins.js",
+    "zip": "zip -r ./minified.zip ./minified && ls -l ./minified.zip",
+    "size":"get-folder-size --folder ./minified",
+    "roadroller": "npx roadroller ga.min.js -o ga.min.js",
+   "build": "npm run kill && npm run make && npm run uglify && npm run size"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "inline-source-cli": "^2.0.0",
+    "live-server": "^1.2.2",
+    "parcel": "^2.15.4"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.9",
+    "get-folder-size": "^5.0.0",
+    "google-closure-compiler": "^20250820.0.0",
+    "http-server": "^14.1.1"
+  }
+}
