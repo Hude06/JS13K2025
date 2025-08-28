@@ -17,7 +17,7 @@ let buildings;
 let dropPoint;
 let mouses;
 let camera;
-let tower;
+let gravity = 0.2;
 
 window.addEventListener("resize", function(event){ 
   g.scaleToWindow();
@@ -51,7 +51,6 @@ function setup() {
     mouses = g.group();
     buildings = g.group();
     game = g.group(player)
-    tower = g.group()
 
     g.canvas.ctx.imageSmoothingEnabled = false;
     console.log(g.canvas.ctx.imageSmoothingEnabled)
@@ -138,9 +137,7 @@ function play() {
     g.move(player);
 
     // Apply gravity
-    if (!player.grounded) {
-        player.vy += 0.2; // Gravity strength
-    }
+    player.vy += gravity; // Gravity strength
 
     // Collect mice
     for (let i = 0; i < mouses.children.length; i++) {
@@ -159,7 +156,6 @@ function play() {
     }
 
     // Reset grounded before collision check
-    player.grounded = false;
 
     // Collide with buildings
     for (let i = 0; i < buildings.children.length; i++) {
@@ -168,17 +164,24 @@ function play() {
         g.hit(player, block, true, false, true, (collision) => {
             if (collision === "top") {
                 // Player’s bottom hits block’s top
-                    player.grounded = true;
-                    player.vy = 0;
-                    player.y = block.y - player.height;
-            } else if (collision === "bottom") {
+                player.vy = 0;
+            } else if (collision === "bottom" && player.vy >= 0) {
                 player.vy = 0; // head hits bottom of block
+                console.log("Landed on block");
+                player.grounded = true;
+                player.y = (block.gy - (player.height)); // Position player on top of block
+                player.vy = -gravity
+
+
             } else if (collision === "left" || collision === "right") {
                 player.vx = 0;
+            }
+            if (collision !== "bottom" && player.vy > 0) {
+                player.grounded = false;
             }
         });
     }
 
     // Center camera on player
-    camera.centerOver(player, 0.05, 0.3);
+    camera.centerOver(player);
 }
