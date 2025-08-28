@@ -160,7 +160,6 @@ function play() {
 
     // Reset grounded before collision check
     player.grounded = false;
-    const GROUND_TOLERANCE = 2;
 
     // Collide with buildings
     for (let i = 0; i < buildings.children.length; i++) {
@@ -169,12 +168,9 @@ function play() {
         g.hit(player, block, true, false, true, (collision) => {
             if (collision === "top") {
                 // Player’s bottom hits block’s top
-                const distance = (player.y + player.height) - block.y;
-                if (distance < GROUND_TOLERANCE) {
                     player.grounded = true;
                     player.vy = 0;
                     player.y = block.y - player.height;
-                }
             } else if (collision === "bottom") {
                 player.vy = 0; // head hits bottom of block
             } else if (collision === "left" || collision === "right") {
