@@ -1,4 +1,14 @@
-let g = ga(800, 512, setup,["./assets/Cat.png","./assets/Mouse_Stand.png","./assets/Mouse_Lay.png"]);
+import GA from "./ga.js";
+import "./plugins.js"; // if plugins extend GA
+let g = GA.create(800, 512, setup, [
+    "../public/Cat.png",
+    "../public/Mouse_Stand.png",
+    "../public/Mouse_Lay.png",
+    "../public/Roof1.png",
+    "../public/Roof2.png"
+]);
+GA.plugins(g);
+
 g.start();
 g.scaleToWindow();
 let player;
@@ -6,25 +16,34 @@ let game;
 let buildings;
 let dropPoint;
 let mouses;
-let camera
+let camera;
+let tower;
 
 window.addEventListener("resize", function(event){ 
   g.scaleToWindow();
 });
 function newMouse(x, y) {
-    let mouseSprite = g.sprite("./assets/Mouse_Stand.png")
+    let mouseSprite = g.sprite("../public/Mouse_Stand.png")
     mouseSprite.width = 22;
     mouseSprite.height = 22;
     mouseSprite.x = x;
     mouseSprite.y = y;
     return mouseSprite
 }
-function newBuilding(x, y, height) {
-    let building = g.rectangle(100, height, "grey");
-    building.x = x;
-    building.y = y - height;
-    return building
+function newBuilding(x, y, roof) {
+    let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
+
+    for (let i = 0; i < Math.random() * 10; i++) {
+        let block = g.sprite("../public/" + roofsrc);
+        block.width = 64;
+        block.height = 32;
+        block.x = x;
+        block.y = y - 100 - (i * 32);
+        buildings.addChild(block); // 👈 goes directly in global group
+    }
 }
+
+
 function setup() {
     console.log("real");
     g.stage.width = g.canvas.width*2 // Total width of all buildings
@@ -32,35 +51,35 @@ function setup() {
     mouses = g.group();
     buildings = g.group();
     game = g.group(player)
+    tower = g.group()
 
     g.canvas.ctx.imageSmoothingEnabled = false;
     console.log(g.canvas.ctx.imageSmoothingEnabled)
     g.canvas.style.border = "2px black solid";
     g.backgroundColor = "white";
-    for (let i = 0; i < (10); i++) {
-        console.log("I is ",i)
-        let building = newBuilding((i)*99, g.canvas.height, 100 + Math.random() * 200)
-        buildings.addChild(building)
+    for (let i = 0; i < 100; i++) {
+        newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1); // 128px spacing
     }
-    game.addChild(buildings)
+    game.addChild(buildings);
 
     for (let i = 0; i < 5; i++) {
-        let mouse = newMouse(i * 20, buildings.children[0].y - 25)
+        let mouse = newMouse(i * 20, buildings.children[0].gy - 25)
         mouses.addChild(mouse)
     }
     game.addChild(mouses)
     dropPoint = g.rectangle(25, 25, "yellow")
     dropPoint.x = g.canvas.width - 25
-    dropPoint.y = buildings.children[buildings.children.length - 1].y
+    dropPoint.y = buildings.children[buildings.children.length - 1].gy
+    game.addChild(dropPoint)
 
-
-    player = g.sprite("./assets/Cat.png")
+    player = g.sprite("../public/Cat.png")
     player.width = 40;
     player.height = 32;
     player.lastDropTime = 0;
     player.dropCooldown = 200;
     player.grounded = false
     player.x = g.canvas.width / 2 - player.width / 2;
+    player.mouses = g.group();
 
     camera = g.worldCamera(game,g.canvas)
     g.key.leftArrow.press = function () {
@@ -100,11 +119,14 @@ function setup() {
 
     // Up arrow key `press` method (Jump)
     g.key.upArrow.press = function () {
-        console.log("Pressed",player.grounded)
+        console.log("Pressed", player.grounded)
         if (player.grounded) {
-            console.log("Jump!");
-            player.vy += 7; // Jump strength
-            player.y -= 5; // Slightly move the player up to avoid immediate re-collision
+            console.log("ground")
+        }
+        if (player.grounded) {
+            console.log("Jumping")
+            player.vy -= 6; // Jump strength
+            console.log("Jump!", player.grounded, player.vy);
             player.grounded = false
         }
     };
@@ -112,57 +134,55 @@ function setup() {
 
 }
 function play() {
-    // Left arrow key `press` method
+    // Move the player
     g.move(player);
-
-    // Left arrow key `release` method
-
-    // Right arrow key `press` method
 
     // Apply gravity
     if (!player.grounded) {
         player.vy += 0.2; // Gravity strength
     }
 
+    // Collect mice
     for (let i = 0; i < mouses.children.length; i++) {
         const mouse = mouses.children[i];
 
         g.hit(player, mouse, false, false, true, () => {
-            // Player collected the mouse
-            const layingMouse = g.sprite("./assets/Mouse_Lay.png");
+            const layingMouse = g.sprite("../public/Mouse_Lay.png");
             layingMouse.width = 20;
             layingMouse.height = 20;
-            layingMouse.offset = mouse.offset || 5; // Preserve the offset if it exists
-
-            // Add the new mouse to the player's mouses array
-            mouses.addChild(layingMouse);
-
-            // Remove the collided mouse from the game stage and the mouses array
-            g.remove(mouse); // Remove the sprite from the game stage
+            layingMouse.offset = mouse.offset || 5;
+            player.mouses.addChild(layingMouse);
+            g.remove(mouse);
             mouses.removeChild(mouse);
-            i--; // Adjust the index after removal
+            i--;
         });
     }
-    for (let i = 0; i < buildings.children.length; i++) {
-        const building = buildings.children[i];
 
-        g.hit(player, building, true, false, true, (collision) => {
+    // Reset grounded before collision check
+    player.grounded = false;
+    const GROUND_TOLERANCE = 2;
+
+    // Collide with buildings
+    for (let i = 0; i < buildings.children.length; i++) {
+        let block = buildings.children[i];
+
+        g.hit(player, block, true, false, true, (collision) => {
             if (collision === "top") {
-                player.vy = 0;  // stop vertical movement
-                player.grounded = true;
-                console.log("We Collided")
+                // Player’s bottom hits block’s top
+                const distance = (player.y + player.height) - block.y;
+                if (distance < GROUND_TOLERANCE) {
+                    player.grounded = true;
+                    player.vy = 0;
+                    player.y = block.y - player.height;
+                }
             } else if (collision === "bottom") {
-                player.vy = 0;
+                player.vy = 0; // head hits bottom of block
             } else if (collision === "left" || collision === "right") {
                 player.vx = 0;
             }
         });
     }
 
-    console.log(player.grounded)
-    // Contain the player within the game boundaries
-    // g.contain(player, { x: 0, y: 0, width: g.canvas.width, height: g.canvas.height });
-
-    // Move the player
-    camera.centerOver(player, 0.2);
+    // Center camera on player
+    camera.centerOver(player, 0.05, 0.3);
 }
