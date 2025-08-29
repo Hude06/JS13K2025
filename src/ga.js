@@ -1175,7 +1175,7 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
         return o;
     };
 
-    //### rectangle
+    //### rectangleg
     //`rectangle` creates and returns a basic rectangular shape.
     //arguments: width, height, fillColor, borderColor, widthOfBorder,
     //xPosition, yPosition.
@@ -2683,6 +2683,10 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
         o.rightArrow = keyboard(39);
         o.downArrow = keyboard(40);
         o.space = keyboard(32);
+        o.a = keyboard(65)
+        o.d = keyboard(68)
+        o.w = keyboard(87)
+        o.s = keyboard(83)
         return o;
     }
 

@@ -6,7 +6,8 @@ let g = GA.create(800, 512, setup, [
     "../public/Mouse_Lay.png",
     "../public/Roof1.png",
     "../public/Roof2.png",
-    "../public/Star.png"
+    "../public/Star.png",
+    "../public/WhiteFont.png"
 ]);
 GA.plugins(g);
 
@@ -26,6 +27,14 @@ let topTowers = [];
 window.addEventListener("resize", function(event){ 
   g.scaleToWindow();
 });
+class Menu {
+    constructor() { 
+        this.menuText = null;
+        this.menuBackground = null;
+        
+    }
+}
+let menuOBJ = new Menu();
 function newMouse(x, y) {
     let mouseSprite = g.sprite("../public/Mouse_Stand.png")
     mouseSprite.width = 22;
@@ -34,10 +43,55 @@ function newMouse(x, y) {
     mouseSprite.y = y;
     return mouseSprite
 }
+function drawText(text, x,y,w,h) {
+    const charWidth = 5;
+    const charHeight = 5;
+    const drawWidth = w;
+    const drawHeight = h;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let textG = g.group();
+
+    for (let i = 0; i < text.length; i++) {
+        let char = text[i].toUpperCase();
+        console.log(char)
+        let index = chars.indexOf(char);
+        console.log(index)
+        if (index === -1) continue;
+
+        let sprite = g.sprite("../public/WhiteFont.png"); // NEW sprite for EACH char
+
+        let sx = index * charWidth; // If your font is a single row
+        sprite.sourceX = sx;
+        sprite.sourceY = 0;
+        sprite.sourceWidth = charWidth;
+        sprite.sourceHeight = charHeight;
+
+        sprite.width = drawWidth;
+        sprite.height = drawHeight;
+        sprite.x = x + i * drawWidth;
+        sprite.y = y;
+
+        textG.addChild(sprite);
+    }
+
+    return textG;
+}
+
+
+
 function newBuilding(x, y, roof) {
     let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
     let topBlock = null;
-    let height = Math.floor(Math.random() * 5) + 3; // number of blocks tall
+
+    // Get the height of the previous building, or 10 if it's the first
+    let leftBuildingHeight = buildings.lastHeight || 20;
+
+    // New building height can only differ by ±2
+    let minHeight = Math.max(1, leftBuildingHeight - 2);
+    let maxHeight = leftBuildingHeight + 2;
+
+    // Pick random height within allowed range
+    let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 
     for (let i = 0; i < height; i++) {
         let block = g.sprite("../public/" + roofsrc);
@@ -52,8 +106,12 @@ function newBuilding(x, y, roof) {
         }
     }
 
+    // Store this building's height (in blocks) for the next one
+    buildings.lastHeight = height;
+
     return topBlock; // return the top block of this building
 }
+
 
 
 function placeStars(count, minDist = 100) {
@@ -99,7 +157,7 @@ function setup() {
     buildings = g.group();
     game = g.group(player)
     stars = g.group()
-    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 50, "black", "none", 0, -500, -500);
+    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
     
     game.addChild(background);
     g.canvas.ctx.imageSmoothingEnabled = false;
@@ -135,7 +193,41 @@ function setup() {
     game.addChild(player.layingMouses);
     game.addChild(player);
 
-    camera = g.worldCamera(game,g.canvas)
+    camera = g.worldCamera(game, g.canvas)
+    g.key.a.press = function () { 
+        player.vx = -3;
+        player.scaleX = -1; // Flip the player horizontally
+        if (player.layingMouses.children.length > 0) {
+            for (let i = 0; i < player.layingMouses.children.length; i++) {
+                player.layingMouses.children[i].scaleX = -1;
+                player.layingMouses.children[i].offset = -5
+            }
+        }
+    }
+    g.key.a.release = function () { 
+        if (!g.key.d.isDown) {
+            player.vx = 0;
+        }
+
+    }
+    g.key.d.press = function () {
+        player.vx = 3;
+        player.scaleX = 1; // Reset the player to face right
+        if (player.layingMouses.children.length > 0) {
+            for (let i = 0; i < player.layingMouses.children.length; i++) {
+                player.layingMouses.children[i].scaleX = 1;
+                player.layingMouses.children[i].offset = 5
+            }
+
+        }
+    };
+
+    // Right arrow key `release` method
+    g.key.d.release = function () {
+        if (!g.key.a.isDown) {
+            player.vx = 0;
+        }
+    };
     g.key.leftArrow.press = function () {
         player.vx = -3;
         player.scaleX = -1; // Flip the player horizontally
@@ -183,9 +275,50 @@ function setup() {
             player.grounded = false
         }
     };
-    g.state = play;  
+    g.key.space.press = function () {
+        console.log("Pressed", player.grounded)
+        if (player.grounded) {
+            console.log("ground")
+        }
+        if (player.grounded) {
+            console.log("Jumping")
+            player.vy -= 9; // Jump strength
+            console.log("Jump!", player.grounded, player.vy);
+            player.grounded = false
+        }
+    };
+    g.key.w.press = function () {
+        console.log("Pressed", player.grounded)
+        if (player.grounded) {
+            console.log("ground")
+        }
+        if (player.grounded) {
+            console.log("Jumping")
+            player.vy -= 9; // Jump strength
+            console.log("Jump!", player.grounded, player.vy);
+            player.grounded = false
+        }
+    };
+    
+    g.state = menu;  
 
 }
+function menu() {
+    if (!menuOBJ.menuBackground && !menuOBJ.menuText) {
+        menuOBJ.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
+        g.stage.addChild(menuOBJ.menuBackground);
+
+        menuOBJ.menuText = drawText("THE MIDNIGHT EXPRESS", 75, 200, 32, 32);
+        g.stage.addChild(menuOBJ.menuText);
+    }
+
+    if (g.key.space.isDown) {
+        g.remove(menuOBJ.menuBackground);
+        g.remove(menuOBJ.menuText);
+        g.state = play;
+    }
+}
+
 function play() {
     // 1️⃣ Apply gravity
     player.vy += gravity; // Gravity strength
