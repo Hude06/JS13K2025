@@ -659,8 +659,8 @@ GA.plugins = function (ga) {
       centerOver: function (sprite) {
 
         //Center the camera over a sprite
-        this.x = (sprite.x + sprite.halfWidth) - (this.width / 2);
-        this.y = (sprite.y + sprite.halfHeight) - (this.height / 2);
+        this.x = ((sprite.x + sprite.halfWidth) - (this.width / 2));
+        this.y = ((sprite.y + sprite.halfHeight) - (this.height / 2));
       }
     };
 

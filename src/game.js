@@ -5,7 +5,8 @@ let g = GA.create(800, 512, setup, [
     "../public/Mouse_Stand.png",
     "../public/Mouse_Lay.png",
     "../public/Roof1.png",
-    "../public/Roof2.png"
+    "../public/Roof2.png",
+    "../public/Cloud.png"
 ]);
 GA.plugins(g);
 
@@ -17,7 +18,10 @@ let buildings;
 let dropPoint;
 let mouses;
 let camera;
-let gravity = 0.2;
+let gravity = 0.4;
+let background;
+let clouds;
+let topTowers = [];
 
 window.addEventListener("resize", function(event){ 
   g.scaleToWindow();
@@ -32,39 +36,88 @@ function newMouse(x, y) {
 }
 function newBuilding(x, y, roof) {
     let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
+    let topBlock = null;
+    let height = Math.floor(Math.random() * 5) + 3; // number of blocks tall
 
-    for (let i = 0; i < Math.random() * 10; i++) {
+    for (let i = 0; i < height; i++) {
         let block = g.sprite("../public/" + roofsrc);
         block.width = 64;
         block.height = 32;
         block.x = x;
-        block.y = y - 100 - (i * 32);
-        buildings.addChild(block); // 👈 goes directly in global group
+        block.y = y - (i * 32);
+        buildings.addChild(block);
+
+        if (!topBlock || block.y < topBlock.y) {
+            topBlock = block;
+        }
     }
+
+    return topBlock; // return the top block of this building
 }
 
 
+function placeClouds(count, minDist = 100) {
+    let placed = [];
+
+    for (let i = 0; i < count; i++) {
+        let tries = 0;
+        let cloud;
+
+        while (tries < 50) { // safety limit
+            let x = Math.floor(Math.random() * ((g.canvas.width*10) - 64));
+            let y = Math.floor(Math.random() * ((g.canvas.height*5) / 2 - 64));
+
+            // Check distance against all placed clouds
+            let tooClose = placed.some(c => {
+                let dx = c.x - x;
+                let dy = c.y - y;
+                return Math.sqrt(dx * dx + dy * dy) < minDist;
+            });
+
+            if (!tooClose) {
+                cloud = g.sprite("../public/Cloud.png");
+                cloud.width = 64;
+                cloud.height = 64;
+                cloud.x = x;
+                cloud.y = y;
+                clouds.addChild(cloud);
+                placed.push(cloud);
+                break; // placed successfully
+            }
+
+            tries++;
+        }
+    }
+}
+
+placeClouds(30, 100); // 30 clouds, at least 100px apart
+
 function setup() {
-    console.log("real");
     g.stage.width = g.canvas.width*2 // Total width of all buildings
     g.stage.height = g.canvas.height;
     mouses = g.group();
     buildings = g.group();
     game = g.group(player)
-
+    clouds = g.group()
+    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 50, "lightblue", "none", 0, -500, -500);
+    
+    game.addChild(background);
     g.canvas.ctx.imageSmoothingEnabled = false;
-    console.log(g.canvas.ctx.imageSmoothingEnabled)
     g.canvas.style.border = "2px black solid";
     g.backgroundColor = "white";
     for (let i = 0; i < 100; i++) {
-        newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1); // 128px spacing
+        topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1)); // 128px spacing
     }
-    game.addChild(buildings);
+
 
     for (let i = 0; i < 5; i++) {
-        let mouse = newMouse(i * 20, buildings.children[0].gy - 25)
+        let mouse = newMouse(i * 64, topTowers[i].y - 22);
         mouses.addChild(mouse)
     }
+    placeClouds(1000, 100); // 30 clouds, at least 100px apart
+
+    game.addChild(clouds)
+    game.addChild(buildings);
     game.addChild(mouses)
     dropPoint = g.rectangle(25, 25, "yellow")
     dropPoint.x = g.canvas.width - 25
@@ -78,17 +131,18 @@ function setup() {
     player.dropCooldown = 200;
     player.grounded = false
     player.x = g.canvas.width / 2 - player.width / 2;
-    player.mouses = g.group();
+    player.layingMouses = g.group();
+    game.addChild(player.layingMouses);
+    game.addChild(player);
 
     camera = g.worldCamera(game,g.canvas)
     g.key.leftArrow.press = function () {
-        player.vx = -2;
+        player.vx = -3;
         player.scaleX = -1; // Flip the player horizontally
-        if (mouses.children.length > 0) {
-            for (let i = 0; i < mouses.children.length; i++) {
-                mouses.children[i].scaleX = -1;
-                // player.mouse.rotation = 120
-                mouses.children[i].offset = -5
+        if (player.layingMouses.children.length > 0) {
+            for (let i = 0; i < player.layingMouses.children.length; i++) {
+                player.layingMouses.children[i].scaleX = -1;
+                player.layingMouses.children[i].offset = -5
             }
         }
     };
@@ -98,12 +152,12 @@ function setup() {
         }
     };
     g.key.rightArrow.press = function () {
-        player.vx = 2;
+        player.vx = 3;
         player.scaleX = 1; // Reset the player to face right
-        if (mouses.children.length > 0) {
-            for (let i = 0; i < mouses.children.length; i++) {
-                mouses.children[i].scaleX = 1;
-                mouses.children[i].offset = 5
+        if (player.layingMouses.children.length > 0) {
+            for (let i = 0; i < player.layingMouses.children.length; i++) {
+                player.layingMouses.children[i].scaleX = 1;
+                player.layingMouses.children[i].offset = 5
             }
 
         }
@@ -124,7 +178,7 @@ function setup() {
         }
         if (player.grounded) {
             console.log("Jumping")
-            player.vy -= 6; // Jump strength
+            player.vy -= 9; // Jump strength
             console.log("Jump!", player.grounded, player.vy);
             player.grounded = false
         }
@@ -133,46 +187,25 @@ function setup() {
 
 }
 function play() {
-    // Move the player
-    g.move(player);
-
-    // Apply gravity
+    // 1️⃣ Apply gravity
     player.vy += gravity; // Gravity strength
 
-    // Collect mice
-    for (let i = 0; i < mouses.children.length; i++) {
-        const mouse = mouses.children[i];
+    // 2️⃣ Move the player
+    g.move(player);
 
-        g.hit(player, mouse, false, false, true, () => {
-            const layingMouse = g.sprite("../public/Mouse_Lay.png");
-            layingMouse.width = 20;
-            layingMouse.height = 20;
-            layingMouse.offset = mouse.offset || 5;
-            player.mouses.addChild(layingMouse);
-            g.remove(mouse);
-            mouses.removeChild(mouse);
-            i--;
-        });
-    }
-
-    // Reset grounded before collision check
-
-    // Collide with buildings
+    // 3️⃣ Collide with buildings
     for (let i = 0; i < buildings.children.length; i++) {
         let block = buildings.children[i];
 
-        g.hit(player, block, true, false, true, (collision) => {
+        g.hit(player, block, true, false, false, (collision) => {
             if (collision === "top") {
-                // Player’s bottom hits block’s top
                 player.vy = 0;
             } else if (collision === "bottom" && player.vy >= 0) {
                 player.vy = 0; // head hits bottom of block
                 console.log("Landed on block");
                 player.grounded = true;
-                player.y = (block.gy - (player.height)); // Position player on top of block
+                player.y = (block.y - player.height); // Position player on top of block
                 player.vy = -gravity
-
-
             } else if (collision === "left" || collision === "right") {
                 player.vx = 0;
             }
@@ -182,6 +215,39 @@ function play() {
         });
     }
 
-    // Center camera on player
+    // 4️⃣ Collect mice
+    for (let i = 0; i < mouses.children.length; i++) {
+        const mouse = mouses.children[i];
+
+        g.hit(player, mouse, true, false, false, () => {
+            const layingMouse = g.sprite("../public/Mouse_Lay.png");
+            layingMouse.width = 20;
+            layingMouse.height = 20;
+            layingMouse.x = player.gx
+            layingMouse.y = player.gy + 10
+            player.layingMouses.addChild(layingMouse);
+            mouses.removeChild(mouse);
+            console.log("hit", layingMouse, player)
+        });
+    }
+    if (player.layingMouses.children.length > 1) {
+        console.log("MOUSE",player.layingMouses.children[0].x, player.layingMouses.children[0].y)
+    }
+    // 5️⃣ Update stacked mice positions
+    let baseX = player.x + (player.scaleX === 1 ? 3 : 19);
+    let baseY = player.y + 5; // start a little above player
+    for (let i = 0; i < player.layingMouses.children.length; i++) {
+        const layingMouse = player.layingMouses.children[i];
+        layingMouse.x = baseX;
+        layingMouse.y = baseY - i * 10; // stack upwards
+    }
+
+    // 6️⃣ Move clouds
+    for (let i = 0; i < clouds.children.length; i++) {
+        const cloud = clouds.children[i];
+        cloud.x -= 0.05; // Move cloud left slowly
+    }
+
+    // 7️⃣ Center camera on player
     camera.centerOver(player);
 }
