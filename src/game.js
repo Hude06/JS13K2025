@@ -6,7 +6,7 @@ let g = GA.create(800, 512, setup, [
     "../public/Mouse_Lay.png",
     "../public/Roof1.png",
     "../public/Roof2.png",
-    "../public/Cloud.png"
+    "../public/Star.png"
 ]);
 GA.plugins(g);
 
@@ -20,7 +20,7 @@ let mouses;
 let camera;
 let gravity = 0.4;
 let background;
-let clouds;
+let stars;
 let topTowers = [];
 
 window.addEventListener("resize", function(event){ 
@@ -56,12 +56,12 @@ function newBuilding(x, y, roof) {
 }
 
 
-function placeClouds(count, minDist = 100) {
+function placeStars(count, minDist = 100) {
     let placed = [];
 
     for (let i = 0; i < count; i++) {
         let tries = 0;
-        let cloud;
+        let star;
 
         while (tries < 50) { // safety limit
             let x = Math.floor(Math.random() * ((g.canvas.width*10) - 64));
@@ -75,13 +75,13 @@ function placeClouds(count, minDist = 100) {
             });
 
             if (!tooClose) {
-                cloud = g.sprite("../public/Cloud.png");
-                cloud.width = 64;
-                cloud.height = 64;
-                cloud.x = x;
-                cloud.y = y;
-                clouds.addChild(cloud);
-                placed.push(cloud);
+                star = g.sprite("../public/Star.png");
+                star.width = 12;
+                star.height = 12;
+                star.x = x;
+                star.y = y;
+                stars.addChild(star);
+                placed.push(star);
                 break; // placed successfully
             }
 
@@ -90,7 +90,7 @@ function placeClouds(count, minDist = 100) {
     }
 }
 
-placeClouds(30, 100); // 30 clouds, at least 100px apart
+placeStars(30, 100); // 30 clouds, at least 100px apart
 
 function setup() {
     g.stage.width = g.canvas.width*2 // Total width of all buildings
@@ -98,8 +98,8 @@ function setup() {
     mouses = g.group();
     buildings = g.group();
     game = g.group(player)
-    clouds = g.group()
-    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 50, "lightblue", "none", 0, -500, -500);
+    stars = g.group()
+    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 50, "black", "none", 0, -500, -500);
     
     game.addChild(background);
     g.canvas.ctx.imageSmoothingEnabled = false;
@@ -114,11 +114,11 @@ function setup() {
         let mouse = newMouse(i * 64, topTowers[i].y - 22);
         mouses.addChild(mouse)
     }
-    placeClouds(1000, 100); // 30 clouds, at least 100px apart
+    placeStars(1000, 100); // 30 clouds, at least 100px apart
 
-    game.addChild(clouds)
+    game.addChild(stars);
     game.addChild(buildings);
-    game.addChild(mouses)
+    game.addChild(mouses);
     dropPoint = g.rectangle(25, 25, "yellow")
     dropPoint.x = g.canvas.width - 25
     dropPoint.y = buildings.children[buildings.children.length - 1].gy
@@ -243,9 +243,9 @@ function play() {
     }
 
     // 6️⃣ Move clouds
-    for (let i = 0; i < clouds.children.length; i++) {
-        const cloud = clouds.children[i];
-        cloud.x -= 0.05; // Move cloud left slowly
+    for (let i = 0; i < stars.children.length; i++) {
+        const star = stars.children[i];
+        star.x -= 0.05; // Move cloud left slowly
     }
 
     // 7️⃣ Center camera on player
