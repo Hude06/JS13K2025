@@ -24,6 +24,9 @@ let gravity = 0.4;
 let background;
 let stars;
 let topTowers = [];
+let outerBar;
+let innerBar;
+let healthBar;
 function playJump() {
     zzfx(...[, , 488, .02, .01, .07, , .7, , 162, , , , , , , , .82, .04]);
 }
@@ -83,7 +86,7 @@ function drawText(text, x,y,w,h) {
 function newBuilding(x, y, roof) {
     let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
     let topBlock = null;
-
+    let pit = Math.floor(Math.random() * 10); // 0–9
     // Get the height of the previous building, or 10 if it's the first
     let leftBuildingHeight = buildings.lastHeight || 10;
 
@@ -93,7 +96,9 @@ function newBuilding(x, y, roof) {
 
     // Pick random height within allowed range
     let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-
+    if (pit === 3) {
+        height = 1
+    }
     for (let i = 0; i < height; i++) {
         let block = g.sprite("../public/" + roofsrc);
         block.width = 64;
@@ -108,7 +113,10 @@ function newBuilding(x, y, roof) {
     }
 
     // Store this building's height (in blocks) for the next one
-    buildings.lastHeight = height;
+    if (pit !== 3) {
+        buildings.lastHeight = height;
+
+    }
 
     return topBlock; // return the top block of this building
 }
@@ -193,11 +201,27 @@ function setup() {
     player.canDropMice = false
     player.moveSpeed = 3
     player.speed = 3
+    player.hurt = 0.01
+    player.fallSpeed = 0;
     player.x = g.canvas.width / 2 - player.width / 2;
     player.layingMouses = g.group();
     player.addChild(player.layingMouses);
     game.addChild(player);
+    outerBar = g.rectangle(150, 16, "yellowGreen"),
+    innerBar = g.rectangle(player.hurt, 16, "red");
 
+    //Group the inner and outer bars
+    healthBar = g.group(outerBar, innerBar);
+
+    //Set the `innerBar` as a property of the `healthBar`
+    healthBar.inner = innerBar;
+
+    //Position the health bar
+    healthBar.x = g.canvas.width - 200;
+    healthBar.y = 16;
+
+    //Add the health bar to the `gameScene`
+    // gameScene.addChild(healthBar);
     camera = g.worldCamera(game, g.canvas)
     g.key.a.press = function () { 
         playerMoveLeft();
@@ -264,6 +288,8 @@ function menu() {
     if (g.key.space.isDown) {
         g.remove(menuOBJ.menuBackground);
         g.remove(menuOBJ.menuText);
+        menuOBJ.menuBackground = null
+        menuOBJ.menuText = null
         g.state = play;
     }
 }
@@ -321,6 +347,25 @@ function play() {
             } else if (collision === "bottom" && player.vy >= 0) {
                 player.vy = 0; // head hits bottom of block
                 player.grounded = true;
+                if (player.fallSpeed > 15) { // tweak this threshold
+                    let damage = Math.floor(player.fallSpeed*10); // scale damage
+                    player.hurt += damage;
+
+                    // Clamp health at 0
+                    if (player.hurt < 0) player.hurt = 0;
+                    if (player.hurt > 150) {
+                        console.log("Dead")
+                        g.state = menu
+                    }
+
+
+                    // Update health bar
+                    healthBar.inner.width = player.hurt;
+
+                    // Maybe add sound/flash
+                    zzfx(...[, , 50, .1, .2, .6, 4, 1.5]); // "thud" noise
+                }
+
                 player.y = (block.y - player.height); // Position player on top of block
                 player.vy = -gravity
             } else if (collision === "left" || collision === "right") {
@@ -358,6 +403,7 @@ function play() {
             g.key.q.release = null; // disable when not hitting
         }
     }
+    player.fallSpeed = player.vy;
     player.moveSpeed = player.speed - (player.layingMouses.children.length/2)
     console.log(player.moveSpeed)
     for (let i = 0; i < mouses.children.length; i++) {
