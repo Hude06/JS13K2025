@@ -2687,6 +2687,7 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
         o.d = keyboard(68)
         o.w = keyboard(87)
         o.s = keyboard(83)
+        o.q = keyboard(81)
         return o;
     }
 

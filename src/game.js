@@ -176,8 +176,9 @@ function setup() {
     game.addChild(stars);
     game.addChild(buildings);
     dropPoint = g.rectangle(25, 25, "yellow")
-    dropPoint.x = g.canvas.width - 25
-    dropPoint.y = buildings.children[buildings.children.length - 1].gy
+    let lastTower = topTowers[Math.round(topTowers.length / 5)];
+    dropPoint.x = lastTower.x + lastTower.width / 2 - dropPoint.width / 2;
+    dropPoint.y = lastTower.y - dropPoint.height; 
     game.addChild(dropPoint)
 
     player = g.sprite("../public/Cat.png")
@@ -186,6 +187,7 @@ function setup() {
     player.lastDropTime = 0;
     player.dropCooldown = 200;
     player.grounded = false
+    player.canDropMice = false
     player.x = g.canvas.width / 2 - player.width / 2;
     player.layingMouses = g.group();
     player.addChild(player.layingMouses);
@@ -290,7 +292,7 @@ function playerMoveUp() {
     }
     if (player.grounded) {
         console.log("Jumping")
-        player.vy -= 9; // Jump strength
+        player.vy -= 10; // Jump strength
         console.log("Jump!", player.grounded, player.vy);
         player.grounded = false
     }
@@ -324,6 +326,33 @@ function play() {
         });
     }
     // 4️⃣ Collect mice
+    if (g.hit(player, dropPoint, false, false, false)) {
+        if (!player.canDropMice) {
+            player.canDropMice = true;
+
+            g.key.q.release = function () {
+                console.log("DROP");
+
+                // Get the last mouse on the stack
+                let count = player.layingMouses.children.length;
+                if (count > 0) {
+                    let m = player.layingMouses.children[count - 1];
+
+                    // Remove it from the player
+                    player.layingMouses.removeChild(m);
+
+                    // Option A: completely delete it
+                    g.remove(m)
+                }
+            };
+        }
+    } else {
+        if (player.canDropMice) {
+            player.canDropMice = false;
+            g.key.q.release = null; // disable when not hitting
+        }
+    }
+
     for (let i = 0; i < mouses.children.length; i++) {
         const mouse = mouses.children[i];
 
@@ -339,9 +368,6 @@ function play() {
             mouses.removeChild(mouse);
         });
     }
-    // 5️⃣ Update stacked mice positions
-    let baseX = player.x + (player.scaleX === 1 ? 3 : 19);
-    let baseY = player.y + player.height; // or above head: player.y - 10
     for (let i = 0; i < player.layingMouses.children.length; i++) {
         const layingMouse = player.layingMouses.children[i];
         layingMouse.x = (player.scaleX === 1 ? 3 : 19) - player.layingMouses.children[i].offset;
