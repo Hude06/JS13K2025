@@ -1,5 +1,6 @@
 import GA from "./ga.js";
 import "./plugins.js"; // if plugins extend GA
+import zzfx from "./sounds.js"
 let g = GA.create(800, 512, setup, [
     "../public/Cat.png",
     "../public/Mouse_Stand.png",
@@ -23,7 +24,9 @@ let gravity = 0.4;
 let background;
 let stars;
 let topTowers = [];
-
+function playJump() {
+    zzfx(...[, , 488, .02, .01, .07, , .7, , 162, , , , , , , , .82, .04]);
+}
 window.addEventListener("resize", function(event){ 
   g.scaleToWindow();
 });
@@ -188,6 +191,8 @@ function setup() {
     player.dropCooldown = 200;
     player.grounded = false
     player.canDropMice = false
+    player.moveSpeed = 3
+    player.speed = 3
     player.x = g.canvas.width / 2 - player.width / 2;
     player.layingMouses = g.group();
     player.addChild(player.layingMouses);
@@ -263,7 +268,7 @@ function menu() {
     }
 }
 function playerMoveRight() {
-    player.vx = 3;
+    player.vx = player.moveSpeed;
     player.scaleX = 1; // Reset the player to face right
     if (player.layingMouses.children.length > 0) {
         for (let i = 0; i < player.layingMouses.children.length; i++) {
@@ -275,7 +280,7 @@ function playerMoveRight() {
 
 }
 function playerMoveLeft() {
-    player.vx = -3;
+    player.vx = -player.moveSpeed;
     player.scaleX = -1; // Flip the player horizontally
     if (player.layingMouses.children.length > 0) {
         for (let i = 0; i < player.layingMouses.children.length; i++) {
@@ -286,6 +291,7 @@ function playerMoveLeft() {
 
 }
 function playerMoveUp() {
+    playJump();
     console.log("Pressed", player.grounded)
     if (player.grounded) {
         console.log("ground")
@@ -352,7 +358,8 @@ function play() {
             g.key.q.release = null; // disable when not hitting
         }
     }
-
+    player.moveSpeed = player.speed - (player.layingMouses.children.length/2)
+    console.log(player.moveSpeed)
     for (let i = 0; i < mouses.children.length; i++) {
         const mouse = mouses.children[i];
 
