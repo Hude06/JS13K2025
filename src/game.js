@@ -53,9 +53,7 @@ function drawText(text, x,y,w,h) {
 
     for (let i = 0; i < text.length; i++) {
         let char = text[i].toUpperCase();
-        console.log(char)
         let index = chars.indexOf(char);
-        console.log(index)
         if (index === -1) continue;
 
         let sprite = g.sprite("../public/WhiteFont.png"); // NEW sprite for EACH char
@@ -84,7 +82,7 @@ function newBuilding(x, y, roof) {
     let topBlock = null;
 
     // Get the height of the previous building, or 10 if it's the first
-    let leftBuildingHeight = buildings.lastHeight || 20;
+    let leftBuildingHeight = buildings.lastHeight || 10;
 
     // New building height can only differ by ±2
     let minHeight = Math.max(1, leftBuildingHeight - 2);
@@ -148,11 +146,7 @@ function placeStars(count, minDist = 100) {
     }
 }
 
-placeStars(30, 100); // 30 clouds, at least 100px apart
-
 function setup() {
-    g.stage.width = g.canvas.width*2 // Total width of all buildings
-    g.stage.height = g.canvas.height;
     mouses = g.group();
     buildings = g.group();
     game = g.group(player)
@@ -163,20 +157,24 @@ function setup() {
     g.canvas.ctx.imageSmoothingEnabled = false;
     g.canvas.style.border = "2px black solid";
     g.backgroundColor = "white";
+
+    console.log("TOWER IS", topTowers.length)
+    const worldWidth = topTowers.length * 64; // 100 * 64 = 6400
+    g.stage.width = worldWidth;
+    g.stage.height = g.canvas.height * 100;
     for (let i = 0; i < 100; i++) {
         topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1)); // 128px spacing
     }
 
-
     for (let i = 0; i < 5; i++) {
         let mouse = newMouse(i * 64, topTowers[i].y - 22);
         mouses.addChild(mouse)
+        game.addChild(mouses)
     }
     placeStars(1000, 100); // 30 clouds, at least 100px apart
 
     game.addChild(stars);
     game.addChild(buildings);
-    game.addChild(mouses);
     dropPoint = g.rectangle(25, 25, "yellow")
     dropPoint.x = g.canvas.width - 25
     dropPoint.y = buildings.children[buildings.children.length - 1].gy
@@ -190,19 +188,12 @@ function setup() {
     player.grounded = false
     player.x = g.canvas.width / 2 - player.width / 2;
     player.layingMouses = g.group();
-    game.addChild(player.layingMouses);
+    player.addChild(player.layingMouses);
     game.addChild(player);
 
     camera = g.worldCamera(game, g.canvas)
     g.key.a.press = function () { 
-        player.vx = -3;
-        player.scaleX = -1; // Flip the player horizontally
-        if (player.layingMouses.children.length > 0) {
-            for (let i = 0; i < player.layingMouses.children.length; i++) {
-                player.layingMouses.children[i].scaleX = -1;
-                player.layingMouses.children[i].offset = -5
-            }
-        }
+        playerMoveLeft();
     }
     g.key.a.release = function () { 
         if (!g.key.d.isDown) {
@@ -211,15 +202,7 @@ function setup() {
 
     }
     g.key.d.press = function () {
-        player.vx = 3;
-        player.scaleX = 1; // Reset the player to face right
-        if (player.layingMouses.children.length > 0) {
-            for (let i = 0; i < player.layingMouses.children.length; i++) {
-                player.layingMouses.children[i].scaleX = 1;
-                player.layingMouses.children[i].offset = 5
-            }
-
-        }
+        playerMoveRight();
     };
 
     // Right arrow key `release` method
@@ -229,14 +212,7 @@ function setup() {
         }
     };
     g.key.leftArrow.press = function () {
-        player.vx = -3;
-        player.scaleX = -1; // Flip the player horizontally
-        if (player.layingMouses.children.length > 0) {
-            for (let i = 0; i < player.layingMouses.children.length; i++) {
-                player.layingMouses.children[i].scaleX = -1;
-                player.layingMouses.children[i].offset = -5
-            }
-        }
+        playerMoveLeft();
     };
     g.key.leftArrow.release = function () {
         if (!g.key.rightArrow.isDown) {
@@ -244,15 +220,7 @@ function setup() {
         }
     };
     g.key.rightArrow.press = function () {
-        player.vx = 3;
-        player.scaleX = 1; // Reset the player to face right
-        if (player.layingMouses.children.length > 0) {
-            for (let i = 0; i < player.layingMouses.children.length; i++) {
-                player.layingMouses.children[i].scaleX = 1;
-                player.layingMouses.children[i].offset = 5
-            }
-
-        }
+        playerMoveRight();
     };
 
     // Right arrow key `release` method
@@ -264,40 +232,14 @@ function setup() {
 
     // Up arrow key `press` method (Jump)
     g.key.upArrow.press = function () {
-        console.log("Pressed", player.grounded)
-        if (player.grounded) {
-            console.log("ground")
-        }
-        if (player.grounded) {
-            console.log("Jumping")
-            player.vy -= 9; // Jump strength
-            console.log("Jump!", player.grounded, player.vy);
-            player.grounded = false
-        }
+        playerMoveUp();
     };
     g.key.space.press = function () {
-        console.log("Pressed", player.grounded)
-        if (player.grounded) {
-            console.log("ground")
-        }
-        if (player.grounded) {
-            console.log("Jumping")
-            player.vy -= 9; // Jump strength
-            console.log("Jump!", player.grounded, player.vy);
-            player.grounded = false
-        }
+        playerMoveUp();
+
     };
     g.key.w.press = function () {
-        console.log("Pressed", player.grounded)
-        if (player.grounded) {
-            console.log("ground")
-        }
-        if (player.grounded) {
-            console.log("Jumping")
-            player.vy -= 9; // Jump strength
-            console.log("Jump!", player.grounded, player.vy);
-            player.grounded = false
-        }
+        playerMoveUp();
     };
     
     g.state = menu;  
@@ -318,7 +260,42 @@ function menu() {
         g.state = play;
     }
 }
+function playerMoveRight() {
+    player.vx = 3;
+    player.scaleX = 1; // Reset the player to face right
+    if (player.layingMouses.children.length > 0) {
+        for (let i = 0; i < player.layingMouses.children.length; i++) {
+            player.layingMouses.children[i].scaleX = 1;
+            player.layingMouses.children[i].offset = 5
+        }
 
+    }
+
+}
+function playerMoveLeft() {
+    player.vx = -3;
+    player.scaleX = -1; // Flip the player horizontally
+    if (player.layingMouses.children.length > 0) {
+        for (let i = 0; i < player.layingMouses.children.length; i++) {
+            player.layingMouses.children[i].scaleX = -1;
+            player.layingMouses.children[i].offset = 20
+        }
+    }
+
+}
+function playerMoveUp() {
+    console.log("Pressed", player.grounded)
+    if (player.grounded) {
+        console.log("ground")
+    }
+    if (player.grounded) {
+        console.log("Jumping")
+        player.vy -= 9; // Jump strength
+        console.log("Jump!", player.grounded, player.vy);
+        player.grounded = false
+    }
+
+}
 function play() {
     // 1️⃣ Apply gravity
     player.vy += gravity; // Gravity strength
@@ -335,7 +312,6 @@ function play() {
                 player.vy = 0;
             } else if (collision === "bottom" && player.vy >= 0) {
                 player.vy = 0; // head hits bottom of block
-                console.log("Landed on block");
                 player.grounded = true;
                 player.y = (block.y - player.height); // Position player on top of block
                 player.vy = -gravity
@@ -347,7 +323,6 @@ function play() {
             }
         });
     }
-
     // 4️⃣ Collect mice
     for (let i = 0; i < mouses.children.length; i++) {
         const mouse = mouses.children[i];
@@ -356,23 +331,21 @@ function play() {
             const layingMouse = g.sprite("../public/Mouse_Lay.png");
             layingMouse.width = 20;
             layingMouse.height = 20;
-            layingMouse.x = player.gx
-            layingMouse.y = player.gy + 10
+            layingMouse.x = player.x;
+            layingMouse.y = player.y - 20;
+            layingMouse.layer = 2
+            layingMouse.offset = 0
             player.layingMouses.addChild(layingMouse);
             mouses.removeChild(mouse);
-            console.log("hit", layingMouse, player)
         });
-    }
-    if (player.layingMouses.children.length > 1) {
-        console.log("MOUSE",player.layingMouses.children[0].x, player.layingMouses.children[0].y)
     }
     // 5️⃣ Update stacked mice positions
     let baseX = player.x + (player.scaleX === 1 ? 3 : 19);
-    let baseY = player.y + 5; // start a little above player
+    let baseY = player.y + player.height; // or above head: player.y - 10
     for (let i = 0; i < player.layingMouses.children.length; i++) {
         const layingMouse = player.layingMouses.children[i];
-        layingMouse.x = baseX;
-        layingMouse.y = baseY - i * 10; // stack upwards
+        layingMouse.x = (player.scaleX === 1 ? 3 : 19) - player.layingMouses.children[i].offset;
+        layingMouse.y = (player.height - i * 10) - 25;
     }
 
     // 6️⃣ Move clouds
