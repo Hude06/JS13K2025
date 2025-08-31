@@ -130,13 +130,12 @@ class State {
         g.key.w.press = () => { playerMoveUp(); };
         g.key.q.release = () => {
             if (this.player.canDropMice) {
-                console.log("DROP");
                 let count = this.player.layingMouses.children.length;
-                if (count > 0) {
-                    let m = this.player.layingMouses.children[count - 1];
-                    this.player.layingMouses.removeChild(m);
-                    g.remove(m);
-                }
+                let m = this.player.layingMouses.children[count - 1];
+                this.player.layingMouses.removeChild(m);
+                this.player.canDropMice = false
+                console.log("DROP", m, this.player.layingMouses.children);
+                // g.remove(m);
             }
         };
     }
@@ -418,6 +417,7 @@ function play() {
             layingMouse.layer = 2
             layingMouse.offset = 0
             state.player.layingMouses.addChild(layingMouse);
+            console.log(state.player.layingMouses.children)
             state.mouses.removeChild(mouse);
         }); 
     }
