@@ -1,7 +1,147 @@
 import GA from "./ga.js";
 import "./plugins.js"; // if plugins extend GA
 import zzfx from "./sounds.js"
-let g = GA.create(800, 512, setup, [
+class State {
+    constructor(g) {
+        // bind setup so `this` inside setup() is the State instance
+
+
+        // initialize properties — don't create sprites until setup()
+        this.g = g
+        this.player = null;
+        this.game = null;
+        this.buildings = null;
+        this.dropPoint = undefined;
+        this.mouses = null;
+        this.camera = undefined;
+        this.gravity = 0.4;
+        this.stars = null;
+        this.topTowers = [];
+        this.outerBar = null;
+        this.innerBar = null;
+        this.healthBar = null;
+        this.worldWidth = 0;
+    }
+
+    setup() {
+        const g = this.g; // local alias for convenience
+
+        // create groups and sprites now that assets are loaded
+        this.game = g.group();         // top-level game group
+        this.buildings = g.group();
+        this.mouses = g.group();
+        this.stars = g.group();
+
+        // player sprite
+        this.player = g.sprite("../public/Cat.png");
+        this.player.width = 40;
+        this.player.height = 32;
+        this.player.lastDropTime = 0;
+        this.player.dropCooldown = 200;
+        this.player.grounded = false;
+        this.player.canDropMice = false;
+        this.player.moveSpeed = 3;
+        this.player.speed = 3;
+        this.player.hurt = 150; // set a starting health width (example)
+        this.player.fallSpeed = 0;
+        this.player.x = g.canvas.width / 2 - this.player.width / 2;
+        this.player.layingMouses = g.group();
+
+        // health bar (use this.* consistently)
+        this.outerBar = g.rectangle(150, 16, "yellowGreen");
+        this.innerBar = g.rectangle(this.player.hurt, 16, "red");
+        this.healthBar = g.group(this.outerBar, this.innerBar);
+        this.healthBar.inner = this.innerBar;
+        this.healthBar.x = g.canvas.width - 200;
+        this.healthBar.y = 16;
+
+        // create towers/buildings AFTER you have groups
+        for (let i = 0; i < 100; i++) {
+            // call your newBuilding function but make sure it uses `g` and `this.buildings`
+            this.topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1));
+        }
+
+        // world width depends on topTowers
+        this.worldWidth = this.topTowers.length * 64;
+        g.stage.width = this.worldWidth;
+        g.stage.height = g.canvas.height * 100;
+
+        // place some mice
+        for (let i = 0; i < 5; i++) {
+            let mouse = newMouse(i * 64, this.topTowers[i].y - 22);
+            this.mouses.addChild(mouse);
+        }
+
+        placeStars(1000, 100);
+
+        // dropPoint and last tower
+        this.dropPoint = g.rectangle(25, 25, "yellow");
+        const lastTower = this.topTowers[Math.max(0, Math.round(this.topTowers.length / 5))];
+        this.dropPoint.x = lastTower.x + lastTower.width / 2 - this.dropPoint.width / 2;
+        this.dropPoint.y = lastTower.y - this.dropPoint.height;
+        this.game.addChild(this.dropPoint);
+
+        // add child hierarchy
+        this.player.addChild(this.player.layingMouses);
+        this.game.addChild(this.player);
+        this.game.addChild(this.stars);
+        this.game.addChild(this.buildings);
+        this.game.addChild(this.mouses);
+
+        // camera
+        this.camera = g.worldCamera(this.game, g.canvas);
+
+        // set keyboard handlers
+        this.keyboard();
+
+        // go to menu state
+        g.state = menu;
+    }
+
+    keyboard() {
+        const g = this.g;
+        // use arrow functions so `this` is the State instance
+        g.key.a.press = () => { playerMoveLeft(); };
+        g.key.a.release = () => {
+            if (!g.key.d.isDown) {
+                this.player.vx = 0;
+            }
+        };
+
+        g.key.d.press = () => { playerMoveRight(); };
+        g.key.d.release = () => {
+            if (!g.key.a.isDown) {
+                this.player.vx = 0;
+            }
+        };
+
+        // similarly for arrows
+        g.key.leftArrow.press = () => { playerMoveLeft(); };
+        g.key.leftArrow.release = () => {
+            if (!g.key.rightArrow.isDown) this.player.vx = 0;
+        };
+        g.key.rightArrow.press = () => { playerMoveRight(); };
+        g.key.rightArrow.release = () => {
+            if (!g.key.leftArrow.isDown) this.player.vx = 0;
+        };
+
+        g.key.upArrow.press = () => { playerMoveUp(); };
+        g.key.space.press = () => { playerMoveUp(); };
+        g.key.w.press = () => { playerMoveUp(); };
+        g.key.q.release = () => {
+            if (this.player.canDropMice) {
+                console.log("DROP");
+                let count = this.player.layingMouses.children.length;
+                if (count > 0) {
+                    let m = this.player.layingMouses.children[count - 1];
+                    this.player.layingMouses.removeChild(m);
+                    g.remove(m);
+                }
+            }
+        };
+    }
+}
+const assets = [
     "../public/Cat.png",
     "../public/Mouse_Stand.png",
     "../public/Mouse_Lay.png",
@@ -9,24 +149,20 @@ let g = GA.create(800, 512, setup, [
     "../public/Roof2.png",
     "../public/Star.png",
     "../public/WhiteFont.png"
-]);
-GA.plugins(g);
+];
 
+let state = null;
+const g = GA.create(800, 512, () => {
+    if (state && typeof state.setup === "function") state.setup();
+}, assets);
+
+state = new State(g);
+GA.plugins(g);
 g.start();
 g.scaleToWindow();
-let player;
-let game;
-let buildings;
-let dropPoint;
-let mouses;
-let camera;
-let gravity = 0.4;
-let background;
-let stars;
-let topTowers = [];
-let outerBar;
-let innerBar;
-let healthBar;
+g.canvas.ctx.imageSmoothingEnabled = false;
+g.canvas.style.border = "2px black solid";
+g.backgroundColor = "black";
 function playJump() {
     zzfx(...[, , 488, .02, .01, .07, , .7, , 162, , , , , , , , .82, .04]);
 }
@@ -80,15 +216,12 @@ function drawText(text, x,y,w,h) {
 
     return textG;
 }
-
-
-
 function newBuilding(x, y, roof) {
     let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
     let topBlock = null;
     let pit = Math.floor(Math.random() * 10); // 0–9
     // Get the height of the previous building, or 10 if it's the first
-    let leftBuildingHeight = buildings.lastHeight || 10;
+    let leftBuildingHeight = state.buildings.lastHeight || 10;
 
     // New building height can only differ by ±2
     let minHeight = Math.max(1, leftBuildingHeight - 2);
@@ -105,7 +238,7 @@ function newBuilding(x, y, roof) {
         block.height = 32;
         block.x = x;
         block.y = y - (i * 32);
-        buildings.addChild(block);
+        state.buildings.addChild(block);
 
         if (!topBlock || block.y < topBlock.y) {
             topBlock = block;
@@ -114,15 +247,12 @@ function newBuilding(x, y, roof) {
 
     // Store this building's height (in blocks) for the next one
     if (pit !== 3) {
-        buildings.lastHeight = height;
+        state.buildings.lastHeight = height;
 
     }
 
     return topBlock; // return the top block of this building
 }
-
-
-
 function placeStars(count, minDist = 100) {
     let placed = [];
 
@@ -147,7 +277,7 @@ function placeStars(count, minDist = 100) {
                 star.height = 12;
                 star.x = x;
                 star.y = y;
-                stars.addChild(star);
+                state.stars.addChild(star);
                 placed.push(star);
                 break; // placed successfully
             }
@@ -157,125 +287,6 @@ function placeStars(count, minDist = 100) {
     }
 }
 
-function setup() {
-    mouses = g.group();
-    buildings = g.group();
-    game = g.group(player)
-    stars = g.group()
-    background = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
-    
-    game.addChild(background);
-    g.canvas.ctx.imageSmoothingEnabled = false;
-    g.canvas.style.border = "2px black solid";
-    g.backgroundColor = "white";
-
-    console.log("TOWER IS", topTowers.length)
-    const worldWidth = topTowers.length * 64; // 100 * 64 = 6400
-    g.stage.width = worldWidth;
-    g.stage.height = g.canvas.height * 100;
-    for (let i = 0; i < 100; i++) {
-        topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1)); // 128px spacing
-    }
-
-    for (let i = 0; i < 5; i++) {
-        let mouse = newMouse(i * 64, topTowers[i].y - 22);
-        mouses.addChild(mouse)
-        game.addChild(mouses)
-    }
-    placeStars(1000, 100); // 30 clouds, at least 100px apart
-
-    game.addChild(stars);
-    game.addChild(buildings);
-    dropPoint = g.rectangle(25, 25, "yellow")
-    let lastTower = topTowers[Math.round(topTowers.length / 5)];
-    dropPoint.x = lastTower.x + lastTower.width / 2 - dropPoint.width / 2;
-    dropPoint.y = lastTower.y - dropPoint.height; 
-    game.addChild(dropPoint)
-
-    player = g.sprite("../public/Cat.png")
-    player.width = 40;
-    player.height = 32;
-    player.lastDropTime = 0;
-    player.dropCooldown = 200;
-    player.grounded = false
-    player.canDropMice = false
-    player.moveSpeed = 3
-    player.speed = 3
-    player.hurt = 0.01
-    player.fallSpeed = 0;
-    player.x = g.canvas.width / 2 - player.width / 2;
-    player.layingMouses = g.group();
-    player.addChild(player.layingMouses);
-    game.addChild(player);
-    outerBar = g.rectangle(150, 16, "yellowGreen"),
-    innerBar = g.rectangle(player.hurt, 16, "red");
-
-    //Group the inner and outer bars
-    healthBar = g.group(outerBar, innerBar);
-
-    //Set the `innerBar` as a property of the `healthBar`
-    healthBar.inner = innerBar;
-
-    //Position the health bar
-    healthBar.x = g.canvas.width - 200;
-    healthBar.y = 16;
-
-    //Add the health bar to the `gameScene`
-    // gameScene.addChild(healthBar);
-    camera = g.worldCamera(game, g.canvas)
-    g.key.a.press = function () { 
-        playerMoveLeft();
-    }
-    g.key.a.release = function () { 
-        if (!g.key.d.isDown) {
-            player.vx = 0;
-        }
-
-    }
-    g.key.d.press = function () {
-        playerMoveRight();
-    };
-
-    // Right arrow key `release` method
-    g.key.d.release = function () {
-        if (!g.key.a.isDown) {
-            player.vx = 0;
-        }
-    };
-    g.key.leftArrow.press = function () {
-        playerMoveLeft();
-    };
-    g.key.leftArrow.release = function () {
-        if (!g.key.rightArrow.isDown) {
-            player.vx = 0;
-        }
-    };
-    g.key.rightArrow.press = function () {
-        playerMoveRight();
-    };
-
-    // Right arrow key `release` method
-    g.key.rightArrow.release = function () {
-        if (!g.key.leftArrow.isDown) {
-            player.vx = 0;
-        }
-    };
-
-    // Up arrow key `press` method (Jump)
-    g.key.upArrow.press = function () {
-        playerMoveUp();
-    };
-    g.key.space.press = function () {
-        playerMoveUp();
-
-    };
-    g.key.w.press = function () {
-        playerMoveUp();
-    };
-    
-    g.state = menu;  
-
-}
 function menu() {
     if (!menuOBJ.menuBackground && !menuOBJ.menuText) {
         menuOBJ.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
@@ -294,145 +305,134 @@ function menu() {
     }
 }
 function playerMoveRight() {
-    player.vx = player.moveSpeed;
-    player.scaleX = 1; // Reset the player to face right
-    if (player.layingMouses.children.length > 0) {
-        for (let i = 0; i < player.layingMouses.children.length; i++) {
-            player.layingMouses.children[i].scaleX = 1;
-            player.layingMouses.children[i].offset = 5
+    state.player.vx = state.player.moveSpeed;
+    state.player.scaleX = 1; // Reset the player to face right
+    if (state.player.layingMouses.children.length > 0) {
+        for (let i = 0; i < state.player.layingMouses.children.length; i++) {
+            state.player.layingMouses.children[i].scaleX = 1;
+            state.player.layingMouses.children[i].offset = 5
         }
 
     }
 
 }
 function playerMoveLeft() {
-    player.vx = -player.moveSpeed;
-    player.scaleX = -1; // Flip the player horizontally
-    if (player.layingMouses.children.length > 0) {
-        for (let i = 0; i < player.layingMouses.children.length; i++) {
-            player.layingMouses.children[i].scaleX = -1;
-            player.layingMouses.children[i].offset = 20
+    state.player.vx = -state.player.moveSpeed;
+    state.player.scaleX = -1; // Flip the player horizontally
+    if (state.player.layingMouses.children.length > 0) {
+        for (let i = 0; i < state.player.layingMouses.children.length; i++) {
+            state.player.layingMouses.children[i].scaleX = -1;
+            state.player.layingMouses.children[i].offset = 20
         }
     }
 
 }
 function playerMoveUp() {
     playJump();
-    console.log("Pressed", player.grounded)
-    if (player.grounded) {
+    if (state.player.grounded) {
         console.log("ground")
     }
-    if (player.grounded) {
+    if (state.player.grounded) {
         console.log("Jumping")
-        player.vy -= 10; // Jump strength
-        console.log("Jump!", player.grounded, player.vy);
-        player.grounded = false
+        state.player.vy -= 10; // Jump strength
+        state.player.grounded = false
     }
 
 }
 function play() {
     // 1️⃣ Apply gravity
-    player.vy += gravity; // Gravity strength
+    state.player.vy += state.gravity; // Gravity strength
 
     // 2️⃣ Move the player
-    g.move(player);
+    g.move(state.player);
 
     // 3️⃣ Collide with buildings
-    for (let i = 0; i < buildings.children.length; i++) {
-        let block = buildings.children[i];
+    for (let i = 0; i < state.buildings.children.length; i++) {
+        let block = state.buildings.children[i];
 
-        g.hit(player, block, true, false, false, (collision) => {
+        g.hit(state.player, block, true, false, false, (collision) => {
             if (collision === "top") {
-                player.vy = 0;
-            } else if (collision === "bottom" && player.vy >= 0) {
-                player.vy = 0; // head hits bottom of block
-                player.grounded = true;
-                if (player.fallSpeed > 15) { // tweak this threshold
-                    let damage = Math.floor(player.fallSpeed*10); // scale damage
-                    player.hurt += damage;
+                state.player.vy = 0;
+            } else if (collision === "bottom" && state.player.vy >= 0) {
+                state.player.vy = 0; // head hits bottom of block
+                state.player.grounded = true;
+                if (state.player.fallSpeed > 15) { // tweak this threshold
+                    let damage = Math.floor(state.player.fallSpeed*10); // scale damage
+                    state.player.hurt += damage;
 
                     // Clamp health at 0
-                    if (player.hurt < 0) player.hurt = 0;
-                    if (player.hurt > 150) {
+                    if (state.player.hurt < 0) state.player.hurt = 0;
+                    if (state.player.hurt > 150) {
                         console.log("Dead")
                         g.state = menu
+                        g.remove(state.dropPoint);
+
+                        // add child hierarchy
+                        g.remove(state.player.layingMouses);
+                        g.remove(state.player);
+                        g.remove(state.stars);
+                        g.remove(state.buildings);
+                        g.remove(state.mouses);
+
+
+                        state = new State(g)
+                        state.setup();
+                        // resetGame();
                     }
 
 
                     // Update health bar
-                    healthBar.inner.width = player.hurt;
+                    state.healthBar.inner.width = state.player.hurt;
 
                     // Maybe add sound/flash
                     zzfx(...[, , 50, .1, .2, .6, 4, 1.5]); // "thud" noise
                 }
 
-                player.y = (block.y - player.height); // Position player on top of block
-                player.vy = -gravity
+                state.player.y = (block.y - state.player.height); // Position player on top of block
+                state.player.vy = -state.gravity
             } else if (collision === "left" || collision === "right") {
-                player.vx = 0;
+                state.player.vx = 0;
             }
-            if (collision !== "bottom" && player.vy > 0) {
-                player.grounded = false;
+            if (collision !== "bottom" && state.player.vy > 0) {
+                state.player.grounded = false;
             }
         });
     }
     // 4️⃣ Collect mice
-    if (g.hit(player, dropPoint, false, false, false)) {
-        if (!player.canDropMice) {
-            player.canDropMice = true;
-
-            g.key.q.release = function () {
-                console.log("DROP");
-
-                // Get the last mouse on the stack
-                let count = player.layingMouses.children.length;
-                if (count > 0) {
-                    let m = player.layingMouses.children[count - 1];
-
-                    // Remove it from the player
-                    player.layingMouses.removeChild(m);
-
-                    // Option A: completely delete it
-                    g.remove(m)
-                }
-            };
-        }
+    if (g.hit(state.player, state.dropPoint, false, false, false)) {
+        state.player.canDropMice = true;
     } else {
-        if (player.canDropMice) {
-            player.canDropMice = false;
-            g.key.q.release = null; // disable when not hitting
-        }
+        state.player.canDropMice = false;
     }
-    player.fallSpeed = player.vy;
-    player.moveSpeed = player.speed - (player.layingMouses.children.length/2)
-    console.log(player.moveSpeed)
-    for (let i = 0; i < mouses.children.length; i++) {
-        const mouse = mouses.children[i];
+    state.player.fallSpeed = state.player.vy;
+    state.player.moveSpeed = state.player.speed - (state.player.layingMouses.children.length/2)
+    for (let i = 0; i < state.mouses.children.length; i++) {
+        const mouse = state.mouses.children[i];
 
-        g.hit(player, mouse, true, false, false, () => {
+        g.hit(state.player, mouse, true, false, false, () => {
             const layingMouse = g.sprite("../public/Mouse_Lay.png");
             layingMouse.width = 20;
             layingMouse.height = 20;
-            layingMouse.x = player.x;
-            layingMouse.y = player.y - 20;
+            layingMouse.x = state.player.x;
+            layingMouse.y = state.player.y - 20;
             layingMouse.layer = 2
             layingMouse.offset = 0
-            player.layingMouses.addChild(layingMouse);
-            mouses.removeChild(mouse);
-        });
+            state.player.layingMouses.addChild(layingMouse);
+            state.mouses.removeChild(mouse);
+        }); 
     }
-    for (let i = 0; i < player.layingMouses.children.length; i++) {
-        const layingMouse = player.layingMouses.children[i];
-        layingMouse.x = (player.scaleX === 1 ? 3 : 19) - player.layingMouses.children[i].offset;
-        layingMouse.y = (player.height - i * 10) - 25;
+    for (let i = 0; i < state.player.layingMouses.children.length; i++) {
+        const layingMouse = state.player.layingMouses.children[i];
+        layingMouse.x = (state.player.scaleX === 1 ? 3 : 19) - state.player.layingMouses.children[i].offset;
+        layingMouse.y = (state.player.height - i * 10) - 25;
     }
 
     // 6️⃣ Move clouds
-    for (let i = 0; i < stars.children.length; i++) {
-        const star = stars.children[i];
+    for (let i = 0; i < state.stars.children.length; i++) {
+        const star = state.stars.children[i];
         star.x -= 0.05; // Move cloud left slowly
     }
 
     // 7️⃣ Center camera on player
-    camera.centerOver(player);
+    state.camera.centerOver(state.player);
 }
