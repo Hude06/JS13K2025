@@ -3,10 +3,6 @@ import "./plugins.js"; // if plugins extend GA
 import zzfx from "./sounds.js"
 class State {
     constructor(g) {
-        // bind setup so `this` inside setup() is the State instance
-
-
-        // initialize properties — don't create sprites until setup()
         this.g = g
         this.player = null;
         this.game = null;
@@ -42,7 +38,7 @@ class State {
         this.player.canDropMice = false;
         this.player.moveSpeed = 3;
         this.player.speed = 3;
-        this.player.hurt = 150; // set a starting health width (example)
+        this.player.hurt = 150;
         this.player.fallSpeed = 0;
         this.player.x = g.canvas.width / 2 - this.player.width / 2;
         this.player.layingMouses = g.group();
@@ -75,16 +71,16 @@ class State {
         placeStars(1000, 100);
 
         // dropPoint and last tower
-        this.dropPoint = g.rectangle(25, 25, "yellow");
+        this.dropPoint = g.sprite("../public/Elevator.png");
         const lastTower = this.topTowers[Math.max(0, Math.round(this.topTowers.length / 5))];
         this.dropPoint.x = lastTower.x + lastTower.width / 2 - this.dropPoint.width / 2;
         this.dropPoint.y = lastTower.y - this.dropPoint.height;
+        this.game.addChild(this.stars);
         this.game.addChild(this.dropPoint);
 
         // add child hierarchy
         this.player.addChild(this.player.layingMouses);
         this.game.addChild(this.player);
-        this.game.addChild(this.stars);
         this.game.addChild(this.buildings);
         this.game.addChild(this.mouses);
 
@@ -147,7 +143,8 @@ const assets = [
     "../public/Roof1.png",
     "../public/Roof2.png",
     "../public/Star.png",
-    "../public/WhiteFont.png"
+    "../public/WhiteFont.png",
+    "../public/Elevator.png"
 ];
 
 let state = null;
@@ -160,6 +157,7 @@ GA.plugins(g);
 g.start();
 g.scaleToWindow();
 g.canvas.ctx.imageSmoothingEnabled = false;
+console.log(g.canvas.ctx.imageSmoothingEnabled)
 g.canvas.style.border = "2px black solid";
 g.backgroundColor = "black";
 function playJump() {
@@ -285,7 +283,6 @@ function placeStars(count, minDist = 100) {
         }
     }
 }
-
 function menu() {
     if (!menuOBJ.menuBackground && !menuOBJ.menuText) {
         menuOBJ.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
@@ -341,11 +338,7 @@ function playerMoveUp() {
 function play() {
     // 1️⃣ Apply gravity
     state.player.vy += state.gravity; // Gravity strength
-
-    // 2️⃣ Move the player
     g.move(state.player);
-
-    // 3️⃣ Collide with buildings
     for (let i = 0; i < state.buildings.children.length; i++) {
         let block = state.buildings.children[i];
 

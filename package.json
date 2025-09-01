@@ -20,7 +20,7 @@
   "devDependencies": {
     "google-closure-compiler": "^20250820.0.0",
     "inline-source-cli": "^2.0.0",
-    "live-server": "^1.2.2",
+    "live-server": "^1.2.0",
     "parcel": "^2.15.4"
   },
   "dependencies": {
