@@ -72,9 +72,9 @@ class State {
 
         // dropPoint and last tower
         this.dropPoint = g.sprite("../public/Elevator.png");
-        const lastTower = this.topTowers[Math.max(0, Math.round(this.topTowers.length / 5))];
-        this.dropPoint.x = lastTower.x + lastTower.width / 2 - this.dropPoint.width / 2;
-        this.dropPoint.y = lastTower.y - this.dropPoint.height;
+        const tallestTower = this.topTowers.reduce((a, b) => (a.y < b.y ? a : b));
+        this.dropPoint.x = tallestTower.x + tallestTower.width / 2 - this.dropPoint.width / 2;
+        this.dropPoint.y = tallestTower.y - this.dropPoint.height;
         this.game.addChild(this.stars);
         this.game.addChild(this.dropPoint);
 
