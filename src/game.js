@@ -75,11 +75,53 @@
 
             // dropPoint and last tower
             this.dropPoint = g.sprite("../public/Elevator.png");
-            const tallestTower = this.topTowers.reduce((a, b) => (a.y < b.y ? a : b));
-            this.dropPoint.x = tallestTower.x + tallestTower.width / 2 - this.dropPoint.width / 2;
-            this.dropPoint.y = tallestTower.y - this.dropPoint.height;
-            this.game.addChild(this.stars);
+
+            // Get the player's building position (rounded to the closest building)
+            const playerBuildingIndex = Math.floor(this.player.x / 64);
+
+            // Set the minimum and maximum distance from the player
+            const minDistance = 5;
+            const maxDistance = 10;
+
+            // Calculate the building index range (at least 5, at most 10 buildings away)
+            const minBuilding = Math.max(0, playerBuildingIndex - maxDistance);
+            const maxBuilding = Math.min(this.topTowers.length - 1, playerBuildingIndex + maxDistance);
+
+            // Randomly select a building that is at least 5 buildings away
+            let validBuildingFound = false;
+            let selectedBuilding = null;
+
+            while (!validBuildingFound) {
+                // Randomly choose a building that is within the distance range
+                let randomBuildingIndex = Math.floor(Math.random() * (maxBuilding - minBuilding + 1)) + minBuilding;
+
+                // Ensure it's at least 5 buildings away (either to the left or right)
+                if (Math.abs(randomBuildingIndex - playerBuildingIndex) < minDistance) {
+                    continue; // If too close, try again
+                }
+
+                // Get the top block of the building
+                selectedBuilding = this.topTowers[randomBuildingIndex];
+
+                // Check if the building is a pit (height <= 1)
+                const isPit = selectedBuilding.height <= 1;
+
+                if (!isPit) {
+                    validBuildingFound = true; // Valid building found
+                }
+            }
+
+            // Now place the drop point on top of the valid building
+            this.dropPoint.x = selectedBuilding.x + selectedBuilding.width / 2 - this.dropPoint.width / 2;
+            this.dropPoint.y = selectedBuilding.y - this.dropPoint.height;
+
+            console.log("Drop Point Position:", this.dropPoint.x, this.dropPoint.y);
+
+            // Add the drop point to the game
             this.game.addChild(this.dropPoint);
+
+
+            this.game.addChild(this.stars);
 
             // add child hierarchy
             this.player.addChild(this.player.layingMouses);
@@ -275,6 +317,7 @@
         let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
         let topBlock = null;
         let pit = Math.floor(Math.random() * 10); // 0–9
+        let isPit = false
         // Get the height of the previous building, or 10 if it's the first
         let leftBuildingHeight = state.buildings.lastHeight || 10;
 
@@ -286,6 +329,7 @@
         let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
         if (pit === 3) {
             height = 1
+            isPit = true
         }
         for (let i = 0; i < height; i++) {
             let block = g.sprite("../public/" + roofsrc);
