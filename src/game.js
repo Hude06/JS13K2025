@@ -136,16 +136,21 @@
                     let m = this.player.layingMouses.children[count - 1];
                     this.player.layingMouses.removeChild(m);
                     this.player.canDropMice = false
+                    this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
+                    console.log(this.player.moveSpeed)
+
                 } else {
                     if (this.player.layingMouses.children.length > 0) {
-                        console.log("Droppinbg")
                         let b = await getBuildingTopUnderPlayer(this.player)
                         console.log(b)
                         let firstMouse = this.player.layingMouses.children[0];
                         this.player.layingMouses.removeChild(firstMouse);
                         let mouse = newMouse(this.player.x - 25, getBuildingTopUnderPlayer(this.player).y - 22);
                         state.mouses.addChild(mouse);
-                        this.player.moveSpeed = this.player.speed - Math.floor(this.player.layingMouses.children.length / 3);
+                        this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
+
+
+                        console.log(this.player.moveSpeed)
                     }
                 }
             };
@@ -472,7 +477,6 @@
             state.player.dropingElevator = false;
         }
         state.player.fallSpeed = state.player.vy;
-        state.player.moveSpeed = state.player.speed - (Math.floor(Math.round(state.player.layingMouses.children.length/3)))
         for (let i = 0; i < state.mouses.children.length; i++) {
             const mouse = state.mouses.children[i];
 
@@ -487,6 +491,10 @@
                 state.player.layingMouses.addChild(layingMouse);
                 console.log(state.player.layingMouses.children)
                 state.mouses.removeChild(mouse);
+
+                state.player.moveSpeed = state.player.speed - (state.player.layingMouses.children.length/6)
+                console.log("Move Speed = ", state.player.moveSpeed)
+
             }); 
         }
         for (let i = 0; i < state.player.layingMouses.children.length; i++) {
