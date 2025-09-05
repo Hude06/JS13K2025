@@ -39,6 +39,7 @@
             this.player.hurt = 150;
             this.player.fallSpeed = 0;
             this.player.x = g.canvas.width / 2 - this.player.width / 2;
+            // this.player.y = blockUnderPlayer
             this.player.layingMouses = g.group();
             this.player.dropingElevator = false;
             this.levelTimeLimit = Math.round((Math.random()*50) + 50)
@@ -57,6 +58,9 @@
             }
 
             // world width depends on topTowers
+            const blockUnderPlayer = getBlockBelow(this.player.x);
+            console.log("block is ",getBlockBelow(this.player.x))
+            this.player.y = blockUnderPlayer.y
             this.worldWidth = this.topTowers.length * 64;
             g.stage.width = this.worldWidth;
             g.stage.height = g.canvas.height * 100;
@@ -192,6 +196,25 @@
         mouseSprite.x = x;
         mouseSprite.y = y;
         return mouseSprite
+    }
+    function getBlockBelow(x) {
+    let closestBlock = null;
+
+    for (let i = 0; i < state.buildings.children.length; i++) {
+        const block = state.buildings.children[i];
+
+        // Check if x is within this block's horizontal bounds
+        const withinX = x >= block.x && x <= block.x + block.width;
+
+        if (withinX) {
+            // If block is higher (i.e., lower y value) than current closest
+            if (!closestBlock || block.y < closestBlock.y) {
+                closestBlock = block;
+            }
+        }
+    }
+
+        return closestBlock;
     }
     function getBuildingTopUnderPlayer(player) {
         let topBlock = null;
