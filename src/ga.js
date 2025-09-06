@@ -1327,65 +1327,7 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
     //### text
     //`text` creates and returns a single line of dynamic text.
     //arguments: stringContent, font, fontColor, xPosition, yPosition.
-    ga.text = function (content, font, fillStyle, x, y) {
-        var o = {};
-
-        //Add the basic sprite properties.
-        makeDisplayObject(o);
-
-        //Set the defaults.
-        o.content = content || "Hello!";
-        o.font = font || "12px sans-serif";
-        o.fillStyle = fillStyle || "red";
-        o.textBaseline = "top";
-
-        //Measure the width and height of the text
-        Object.defineProperties(o, {
-            width: {
-                get: function () {
-                    return ga.canvas.ctx.measureText(o.content).width;
-                },
-                enumerable: true,
-                configurable: true
-            },
-            height: {
-                get: function () {
-                    return ga.canvas.ctx.measureText("M").width;
-                },
-                enumerable: true,
-                configurable: true
-            }
-        });
-
-        //Add the sprite to the stage.
-        ga.stage.addChild(o);
-
-        //Set the object's x and y setters.
-        o.x = x || 0;
-        o.y = y || 0;
-
-        //Add a `render` method that explains to the canvas how to draw text.
-        o.render = function (ctx) {
-            ctx.strokeStyle = o.strokeStyle;
-            ctx.lineWidth = o.lineWidth;
-            ctx.fillStyle = o.fillStyle;
-
-            //Measure the width and height of the text
-            if (o.width === 0) o.width = ctx.measureText(o.content).width;
-            if (o.height === 0) o.height = ctx.measureText("M").width;
-            ctx.translate(-o.width * o.pivotX, -o.height * o.pivotY)
-            ctx.font = o.font;
-            ctx.textBaseline = o.textBaseline;
-            ctx.fillText(
-                o.content,
-                0,
-                0
-            );
-        };
-
-        //Return the text sprite.
-        return o;
-    };
+    
 
     //### frame
     //The `frame` method returns and object that defines
@@ -1425,41 +1367,7 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
     //imageName, frameWidth, frameHeight, spacing
     //(The last `spacing` argument should be included if there's any
     //default spacing (padding) around tileset images.)
-    ga.filmstrip = function (imageName, frameWidth, frameHeight, spacing) {
-        var image = ga.assets[imageName].source,
-            positions = [],
-
-            //Find out how many columns and rows there are in the image.
-            columns = image.width / frameWidth,
-            rows = image.height / frameHeight,
-
-            //Find the total number of frames.
-            numberOfFrames = columns * rows;
-
-        for (var i = 0; i < numberOfFrames; i++) {
-
-            //Find the correct row and column for each frame
-            //and figure out its x and y position.
-            var x, y;
-            x = (i % columns) * frameWidth;
-            y = Math.floor(i / columns) * frameHeight;
-
-            //Compensate for any optional spacing (padding) around the tiles if
-            //there is any. This bit of code accumulates the spacing offsets from the
-            //left side of the tileset and adds them to the current tile's position.
-            if (spacing && spacing > 0) {
-                x += spacing + (spacing * i % columns);
-                y += spacing + (spacing * Math.floor(i / columns));
-            }
-
-            //Add the x and y value of each frame to the `positions` array.
-            positions.push([x, y]);
-        }
-
-        //Create and return the animation frames using the `frames` method.
-        return ga.frames(imageName, positions, frameWidth, frameHeight);
-    };
-
+    
     //### sprite
     //`sprite` creates and returns a sprite using a JavaScript Image object, a tileset
     //`frame`, a `filmstrip`, or a frame from a texture atlas (in
@@ -2688,6 +2596,7 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
         o.w = keyboard(87)
         o.s = keyboard(83)
         o.q = keyboard(81)
+        o.r = keyboard(82)
         return o;
     }
 

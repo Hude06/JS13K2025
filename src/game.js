@@ -13,7 +13,6 @@
             this.gravity = 0.4;
             this.stars = null;
             this.topTowers = [];
-
             this.worldWidth = 0;
         }
 
@@ -172,6 +171,10 @@
             g.key.upArrow.press = () => { playerMoveUp(); };
             g.key.space.press = () => { playerMoveUp(); };
             g.key.w.press = () => { playerMoveUp(); };
+            console.log(g.state)
+            // if (g.state !== "menu") {
+            //     g.key.r.press = () => { resetGame()};
+            // }
             g.key.q.release = async () => {
                 if (this.player.dropingElevator) {
                     let count = this.player.layingMouses.children.length;
@@ -180,6 +183,12 @@
                     this.player.canDropMice = false
                     this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
                     console.log(this.player.moveSpeed)
+                    playJump()
+                    console.log("MNouse left",this.mouses.children.length)
+                    if (this.mouses.children.length === 0 && this.player.layingMouses.children.length === 0) {
+                        console.log("reset")
+                        resetGame();
+                    }
 
                 } else {
                     if (this.player.layingMouses.children.length > 0) {
@@ -236,6 +245,22 @@
         }
     }
     let menuOBJ = new Menu();
+    function resetGame() {
+        g.state = menu
+        g.remove(state.dropPoint);
+
+        // add child hierarchy
+        g.remove(state.player.layingMouses);
+        g.remove(state.player);
+        g.remove(state.stars);
+        g.remove(state.buildings);
+        g.remove(state.mouses);
+        g.remove(state.timeLimitSprite)
+
+
+        state = new State(g)
+        state.setup();
+    }
     function newMouse(x, y) {
         let mouseSprite = g.sprite("../public/Mouse_Stand.png")
         mouseSprite.width = 22;
@@ -320,13 +345,17 @@
         let isPit = false
         // Get the height of the previous building, or 10 if it's the first
         let leftBuildingHeight = state.buildings.lastHeight || 10;
-
         // New building height can only differ by ±2
         let minHeight = Math.max(1, leftBuildingHeight - 2);
-        let maxHeight = leftBuildingHeight + 2;
+        let maxHeight = leftBuildingHeight + 3;
 
         // Pick random height within allowed range
-        let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+        let height = (Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight);
+        while(height === 1) {
+            minHeight = Math.max(1, leftBuildingHeight - 2);
+            maxHeight = leftBuildingHeight + 2;
+            height = (Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight);
+        }
         if (pit === 3) {
             height = 1
             isPit = true
@@ -347,7 +376,6 @@
         // Store this building's height (in blocks) for the next one
         if (pit !== 3) {
             state.buildings.lastHeight = height;
-
         }
 
         return topBlock; // return the top block of this building
@@ -479,21 +507,8 @@
                         if (state.player.hurt < 0) state.player.hurt = 0;
                         if (state.player.hurt > 150) {
                             console.log("Dead")
-                            g.state = menu
-                            g.remove(state.dropPoint);
 
-                            // add child hierarchy
-                            g.remove(state.player.layingMouses);
-                            g.remove(state.player);
-                            g.remove(state.stars);
-                            g.remove(state.buildings);
-                            g.remove(state.mouses);
-                            g.remove(state.timeLimitSprite)
-
-
-                            state = new State(g)
-                            state.setup();
-                            // resetGame();
+                            resetGame();
                         }
 
 
