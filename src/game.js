@@ -38,20 +38,19 @@ class State {
         this.player.hurt = 150;
         this.player.fallSpeed = 0;
         this.player.x = g.canvas.width / 2 - this.player.width / 2;
+        this.levelTimeLimit = 30
+        this.dropPoint = g.sprite("/Elevator.png");
+
         // this.player.y = blockUnderPlayer
         this.player.layingMouses = g.group();
         this.player.dropingElevator = false;
 
-        this.timeLimitSprite = drawText(30 + "", g.canvas.width - 90, 16,32,32)
+        this.timeLimitSprite = drawText("hey", g.canvas.width - 200, 16,32,32)
         g.stage.addChild(this.timeLimitSprite)
 
 
         // create towers/buildings AFTER you have groups
-        for (let i = 0; i < 100; i++) {
-            // call your newBuilding function but make sure it uses `g` and `this.buildings`
-            this.topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1));
-        }
-
+        createLevel(30,5,this.topTowers,this.mouses,this.dropPoint,this.player)
         // world width depends on topTowers
         const blockUnderPlayer = getBlockBelow(this.player.x);
         console.log("block is ",getBlockBelow(this.player.x))
@@ -61,70 +60,21 @@ class State {
         g.stage.height = g.canvas.height * 100;
 
         // place some mice
-        for (let i = 0; i < 5; i++) {
-            let mouse = newMouse(i * 64, this.topTowers[i].y - 22);
-            this.mouses.addChild(mouse);
-        }
-
         placeStars(1000, 100);
 
         // dropPoint and last tower
-        this.dropPoint = g.sprite("/Elevator.png");
-
-        // Get the player's building position (rounded to the closest building)
-        const playerBuildingIndex = Math.floor(this.player.x / 64);
-
-        // Set the minimum and maximum distance from the player
-        const minDistance = 5;
-        const maxDistance = 10;
-
-        // Calculate the building index range (at least 5, at most 10 buildings away)
-        const minBuilding = Math.max(0, playerBuildingIndex - maxDistance);
-        const maxBuilding = Math.min(this.topTowers.length - 1, playerBuildingIndex + maxDistance);
-
-        // Randomly select a building that is at least 5 buildings away
-        let validBuildingFound = false;
-        let selectedBuilding = null;
-
-        while (!validBuildingFound) {
-            // Randomly choose a building that is within the distance range
-            let randomBuildingIndex = Math.floor(Math.random() * (maxBuilding - minBuilding + 1)) + minBuilding;
-
-            // Ensure it's at least 5 buildings away (either to the left or right)
-            if (Math.abs(randomBuildingIndex - playerBuildingIndex) < minDistance) {
-                continue; // If too close, try again
-            }
-
-            // Get the top block of the building
-            selectedBuilding = this.topTowers[randomBuildingIndex];
-
-            // Check if the building is a pit (height <= 1)
-            const isPit = selectedBuilding.height <= 1;
-
-            if (!isPit) {
-                validBuildingFound = true; // Valid building found
-            }
-        }
-
-        // Now place the drop point on top of the valid building
-        this.dropPoint.x = selectedBuilding.x + selectedBuilding.width / 2 - this.dropPoint.width / 2;
-        this.dropPoint.y = selectedBuilding.y - this.dropPoint.height;
-
-        console.log("Drop Point Position:", this.dropPoint.x, this.dropPoint.y);
-
-        // Add the drop point to the game
-        this.game.addChild(this.dropPoint);
-
+        
 
         this.game.addChild(this.stars);
 
         // add child hierarchy
         this.player.addChild(this.player.layingMouses);
-        this.game.addChild(this.player);
         console.log(this.levelTimeLimit)
         // g.stage.addChild(timeLimit); // if you prefer a HUD group
         this.game.addChild(this.buildings);
+        this.game.addChild(this.dropPoint)
         this.game.addChild(this.mouses);
+        this.game.addChild(this.player);
 
         // camera
         this.camera = g.worldCamera(this.game, g.canvas);
@@ -168,9 +118,7 @@ class State {
         g.key.space.press = () => { playerMoveUp(); };
         g.key.w.press = () => { playerMoveUp(); };
         console.log(g.state)
-        // if (g.state !== "menu") {
-        //     g.key.r.press = () => { resetGame()};
-        // }
+        g.key.r.press = () => { resetGame()};
         g.key.q.release = async () => {
             if (this.player.dropingElevator) {
                 let count = this.player.layingMouses.children.length;
@@ -283,8 +231,58 @@ function getBlockBelow(x) {
 
         return closestBlock;
 }
-function createLevel() {
-    
+function createLevel(length,mouseAmount,topTowers,mouses,dropPoint,player) {
+        for (let i = 0; i < length; i++) {
+            // call your newBuilding function but make sure it uses `g` and `this.buildings`
+            topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1));
+        }
+        for (let i = 0; i < mouseAmount; i++) {
+            let mouse = newMouse(i * 64, topTowers[i].y - 22);
+            mouses.addChild(mouse);
+        }
+
+        // Get the player's building position (rounded to the closest building)
+        const playerBuildingIndex = Math.floor(player.x / 64);
+
+        // Set the minimum and maximum distance from the player
+        const minDistance = 5;
+        const maxDistance = 10;
+
+        // Calculate the building index range (at least 5, at most 10 buildings away)
+        const minBuilding = Math.max(0, playerBuildingIndex - maxDistance);
+        const maxBuilding = Math.min(topTowers.length - 1, playerBuildingIndex + maxDistance);
+
+        // Randomly select a building that is at least 5 buildings away
+        let validBuildingFound = false;
+        let selectedBuilding = null;
+
+        while (!validBuildingFound) {
+            // Randomly choose a building that is within the distance range
+            let randomBuildingIndex = Math.floor(Math.random() * (maxBuilding - minBuilding + 1)) + minBuilding;
+
+            // Ensure it's at least 5 buildings away (either to the left or right)
+            if ((randomBuildingIndex - playerBuildingIndex) < minDistance) {
+                continue; // If too close, try again
+            }
+
+            // Get the top block of the building
+            selectedBuilding = topTowers[randomBuildingIndex];
+
+            // Check if the building is a pit (height <= 1)
+            const isPit = selectedBuilding.height <= 1;
+
+            if (!isPit) {
+                validBuildingFound = true; // Valid building found
+            }
+        }
+
+        // Now place the drop point on top of the valid building
+        dropPoint.x = selectedBuilding.x + selectedBuilding.width / 2 - dropPoint.width / 2;
+        dropPoint.y = selectedBuilding.y - dropPoint.height;
+
+
+        // Add the drop point to the game
+
 }
 function getBuildingTopUnderPlayer(player) {
     let topBlock = null;
@@ -469,23 +467,9 @@ function play() {
     g.move(state.player);
     state.levelTimeLimit -= 0.01
     g.remove(state.timeLimitSprite);
-    state.timeLimitSprite = drawText(Math.round(state.levelTimeLimit) + "", g.canvas.width - 90, 16, 32, 32)
+    state.timeLimitSprite = drawText((state.levelTimeLimit) + "", g.canvas.width - 90, 16, 32, 32)
     if (state.levelTimeLimit < 0) {
-        console.log("Dead")
-        g.state = menu
-        g.remove(state.dropPoint);
-
-        // add child hierarchy
-        g.remove(state.player.layingMouses);
-        g.remove(state.player);
-        g.remove(state.stars);
-        g.remove(state.buildings);
-        g.remove(state.mouses);
-        g.remove(state.timeLimitSprite)
-
-
-        state = new State(g)
-        state.setup();
+        resetGame();
     }
     // remove old text and draw new (simple approach)
     for (let i = 0; i < state.buildings.children.length; i++) {

@@ -4,9 +4,14 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "l13": "^0.0.17"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@gfx/zopfli": "^1.0.15",
+    "zopfli": "^1.0.2"
   }
 }
