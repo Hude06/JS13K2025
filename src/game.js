@@ -29,7 +29,7 @@ class State {
         this.stars = g.group();
 
         // player sprite
-        this.player = g.sprite("/Cat.png");
+        this.player = g.sprite("./Cat.png");
         this.player.width = 40;
         this.player.height = 32;
         this.player.lastDropTime = 0;
@@ -42,7 +42,7 @@ class State {
         this.player.fallSpeed = 0;
         this.player.x = g.canvas.width / 2 - this.player.width / 2;
         this.levelTimeLimit = 30
-        this.dropPoint = g.sprite("/Elevator.png");
+        this.dropPoint = g.sprite("./Elevator.png");
 
         // this.player.y = blockUnderPlayer
         this.player.layingMouses = g.group();
@@ -162,14 +162,14 @@ class State {
     }
 }
 const assets = [
-    "/Cat.png",
-    "/Mouse_Stand.png",
-    "/Mouse_Lay.png",
-    "/Roof1.png",
-    "/Roof2.png",
-    "/Star.png",
-    "/WhiteFont.png",
-    "/Elevator.png"
+    "./Cat.png",
+    "./Mouse_Stand.png",
+    "./Mouse_Lay.png",
+    "./Roof1.png",
+    "./Roof2.png",
+    "./Star.png",
+    "./WhiteFont.png",
+    "./Elevator.png"
 ];
 let state = null;
 const g = GA.create(800, 512, () => {
@@ -207,7 +207,7 @@ function resetGame() {
     state.setup();
 }
 function newMouse(x, y) {
-    let mouseSprite = g.sprite("/Mouse_Stand.png")
+    let mouseSprite = g.sprite("./Mouse_Stand.png")
     mouseSprite.width = 22;
     mouseSprite.height = 22;
     mouseSprite.x = x;
@@ -318,7 +318,7 @@ function drawText(text, x,y,w,h) {
         let index = chars.indexOf(char);
         if (index === -1) continue;
 
-        let sprite = g.sprite("/WhiteFont.png"); // NEW sprite for EACH char
+        let sprite = g.sprite("./WhiteFont.png"); // NEW sprite for EACH char
 
         let sx = index * charWidth; // If your font is a single row
         sprite.sourceX = sx;
@@ -362,7 +362,7 @@ function newBuilding(x, y, roof) {
         isPit = true
     }
     for (let i = 0; i < height; i++) {
-        let block = g.sprite("/" + roofsrc);
+        let block = g.sprite("./" + roofsrc);
         block.width = 64;
         block.height = 32;
         block.x = x;
@@ -400,7 +400,7 @@ function placeStars(count, minDist = 100) {
             });
 
             if (!tooClose) {
-                star = g.sprite("/Star.png");
+                star = g.sprite("./Star.png");
                 star.width = 12;
                 star.height = 12;
                 star.x = x;
@@ -534,7 +534,7 @@ function play() {
         const mouse = state.mouses.children[i];
 
         g.hit(state.player, mouse, true, false, false, () => {
-            const layingMouse = g.sprite("/Mouse_Lay.png");
+            const layingMouse = g.sprite("./Mouse_Lay.png");
             layingMouse.width = 20;
             layingMouse.height = 20;
             layingMouse.x = state.player.x;
