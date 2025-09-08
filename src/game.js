@@ -346,6 +346,9 @@ function newBuilding(x, y, roof) {
     // New building height can only differ by ±2
     let minHeight = Math.max(1, leftBuildingHeight - 2);
     let maxHeight = leftBuildingHeight + 3;
+    if (maxHeight === 20) {
+        maxHeight = leftBuildingHeight - 3
+    }
 
     // Pick random height within allowed range
     let height = (Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight);
@@ -386,8 +389,8 @@ function placeStars(count, minDist = 100) {
         let star;
 
         while (tries < 50) { // safety limit
-            let x = Math.floor(Math.random() * ((g.canvas.width*10) - 64));
-            let y = Math.floor(Math.random() * ((g.canvas.height*5) / 2 - 64));
+            let x = (Math.floor(Math.random() * ((g.canvas.width*10) - 64)))-500;
+            let y = (Math.floor(Math.random() * ((g.canvas.height*5) / 2 - 64)))-700;
 
             // Check distance against all placed clouds
             let tooClose = placed.some(c => {
