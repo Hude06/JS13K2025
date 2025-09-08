@@ -14,6 +14,9 @@ class State {
         this.stars = null;
         this.topTowers = [];
         this.worldWidth = 0;
+        this.menuStage = 1
+        this.menuText = undefined
+        this.menuBackground = undefined
     }
 
     setup() {
@@ -45,7 +48,7 @@ class State {
         this.player.layingMouses = g.group();
         this.player.dropingElevator = false;
 
-        this.timeLimitSprite = drawText("hey", g.canvas.width - 200, 16,32,32)
+        this.timeLimitSprite = drawText("30", g.canvas.width - 200, 16,32,32)
         g.stage.addChild(this.timeLimitSprite)
 
 
@@ -115,7 +118,14 @@ class State {
         };
 
         g.key.upArrow.press = () => { playerMoveUp(); };
-        g.key.space.press = () => { playerMoveUp(); };
+        g.key.space.press = () => {
+            if (g.state === play) {
+                playerMoveUp();
+            } else if (g.state === menu) {
+                console.log("menu")
+                state.menuStage += 1
+            }
+            };
         g.key.w.press = () => { playerMoveUp(); };
         console.log(g.state)
         g.key.r.press = () => { resetGame()};
@@ -180,14 +190,6 @@ function playJump() {
 window.addEventListener("resize", function(event){ 
 g.scaleToWindow();
 });
-class Menu {
-    constructor() { 
-        this.menuText = null;
-        this.menuBackground = null;
-        
-    }
-}
-let menuOBJ = new Menu();
 function resetGame() {
     g.state = menu
     g.remove(state.dropPoint);
@@ -410,21 +412,28 @@ function placeStars(count, minDist = 100) {
     }
 }
 function menu() {
-    if (!menuOBJ.menuBackground && !menuOBJ.menuText) {
-        menuOBJ.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
-        g.stage.addChild(menuOBJ.menuBackground);
-
-        menuOBJ.menuText = drawText("THE MIDNIGHT EXPRESS", 75, 200, 32, 32);
-        g.stage.addChild(menuOBJ.menuText);
+    if (!state.menuBackground && !state.menuText) {
+        state.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
+        g.stage.addChild(state.menuBackground);
+        state.menuText = drawText("CATS CARGO", 75, 200, 32, 32);
+        g.stage.addChild(state.menuText);
     }
-
-    if (g.key.space.isDown) {
-        g.remove(menuOBJ.menuBackground);
-        g.remove(menuOBJ.menuText);
-        menuOBJ.menuBackground = null
-        menuOBJ.menuText = null
-        g.state = play;
-    }
+        if (state.menuStage === 2) {
+            g.remove(state.menuText)
+            state.menuText = drawText("2", 75, 200, 32, 32);
+        }
+        if (state.menuStage === 3) {
+            g.remove(state.menuText)
+            state.menuText = drawText("3", 75, 200, 32, 32);
+        }
+        if (state.menuStage === 4) {
+            g.remove(state.menuText)
+            g.stage.remove(state.menuBackground);
+            state.menuBackground = null
+            state.menuText = null
+            state.menuStage = 1
+            g.state = play
+        }
 }
 function playerMoveRight() {
     state.player.vx = state.player.moveSpeed;
