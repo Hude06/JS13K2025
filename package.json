@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@gfx/zopfli": "^1.0.15",
+    "sharp": "^0.34.3",
     "zopfli": "^1.0.2"
   }
 }

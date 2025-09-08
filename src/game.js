@@ -415,16 +415,16 @@ function menu() {
     if (!state.menuBackground && !state.menuText) {
         state.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
         g.stage.addChild(state.menuBackground);
-        state.menuText = drawText("CATS CARGO", 75, 200, 32, 32);
+        state.menuText = drawText("PRESS SPACE!", 220, 220, 32, 32);
         g.stage.addChild(state.menuText);
     }
         if (state.menuStage === 2) {
             g.remove(state.menuText)
-            state.menuText = drawText("2", 75, 200, 32, 32);
+            state.menuText = drawText("CATS CARGO", 240, 220, 32, 32);
         }
         if (state.menuStage === 3) {
             g.remove(state.menuText)
-            state.menuText = drawText("3", 75, 200, 32, 32);
+            state.menuText = drawText("JS13K By JUDE HILL", 110, 220, 32, 32);
         }
         if (state.menuStage === 4) {
             g.remove(state.menuText)
