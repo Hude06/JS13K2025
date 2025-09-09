@@ -1,6 +1,8 @@
 import GA from "./ga.js";
 import "./plugins.js"; // if plugins extend GA
 import zzfx from "./sounds.js"
+let money = 0;
+let moneySPRITE = undefined
 class State {
     constructor(g) {
         this.g = g
@@ -18,6 +20,23 @@ class State {
         this.menuText = undefined
         this.menuBackground = undefined
     }
+    destroy() {
+    // remove groups/sprites we added to the stage
+    try { if (this.player) g.remove(this.player); } catch(e){}
+    try { if (this.mouses) g.remove(this.mouses); } catch(e){}
+    try { if (this.buildings) g.remove(this.buildings); } catch(e){}
+    try { if (this.stars) g.remove(this.stars); } catch(e){}
+    try { if (this.dropPoint) g.remove(this.dropPoint); } catch(e){}
+    try { if (this.timeLimitSprite) g.remove(this.timeLimitSprite); } catch(e){}
+    // clear references so GC can collect
+    this.camera = null;
+    this.player = null;
+    this.mouses = null;
+    this.buildings = null;
+    this.stars = null;
+    this.dropPoint = null;
+    this.game = null;
+    };
 
     setup() {
         const g = this.g; // local alias for convenience
@@ -49,11 +68,12 @@ class State {
         this.player.dropingElevator = false;
 
         this.timeLimitSprite = drawText("30", g.canvas.width - 200, 16,32,32)
+        updateMoneyHUD(money);
         g.stage.addChild(this.timeLimitSprite)
 
 
         // create towers/buildings AFTER you have groups
-        createLevel(30,5,this.topTowers,this.mouses,this.dropPoint,this.player)
+        createLevel(20,5,this.topTowers,this.mouses,this.dropPoint,this.player)
         // world width depends on topTowers
         const blockUnderPlayer = getBlockBelow(this.player.x);
         console.log("block is ",getBlockBelow(this.player.x))
@@ -63,7 +83,7 @@ class State {
         g.stage.height = g.canvas.height * 100;
 
         // place some mice
-        placeStars(1000, 100);
+        placeStars(100, 100);
 
         // dropPoint and last tower
         
@@ -124,6 +144,7 @@ class State {
             } else if (g.state === menu) {
                 console.log("menu")
                 state.menuStage += 1
+                console.log(money)
             }
             };
         g.key.w.press = () => { playerMoveUp(); };
@@ -138,6 +159,9 @@ class State {
                 this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
                 console.log(this.player.moveSpeed)
                 playJump()
+                money += 1;
+                console.log("money ->", money);
+                updateMoneyHUD(money);
                 console.log("MNouse left",this.mouses.children.length)
                 if (this.mouses.children.length === 0 && this.player.layingMouses.children.length === 0) {
                     console.log("reset")
@@ -190,18 +214,18 @@ function playJump() {
 window.addEventListener("resize", function(event){ 
 g.scaleToWindow();
 });
+function updateMoneyHUD(newMoney) {
+  // remove old sprite if present
+  if (typeof moneySPRITE !== "undefined" && moneySPRITE) {
+    try { g.remove(moneySPRITE); } catch(e) { /* ignore */ }
+  }
+  moneySPRITE = drawText(String(newMoney) + " money", g.canvas.width - 800, 16, 32, 32);
+  g.stage.addChild(moneySPRITE);
+}
 function resetGame() {
     g.state = menu
-    g.remove(state.dropPoint);
-
-    // add child hierarchy
-    g.remove(state.player.layingMouses);
-    g.remove(state.player);
-    g.remove(state.stars);
-    g.remove(state.buildings);
-    g.remove(state.mouses);
-    g.remove(state.timeLimitSprite)
-
+    state.destroy()
+    console.log("active cameras count:", (window.__cameras || []).length);
 
     state = new State(g)
     state.setup();
@@ -480,8 +504,11 @@ function play() {
     state.levelTimeLimit -= 0.01
     g.remove(state.timeLimitSprite);
     state.timeLimitSprite = drawText((state.levelTimeLimit) + "", g.canvas.width - 90, 16, 32, 32)
+
     if (state.levelTimeLimit < 0) {
         resetGame();
+        money = 0;
+        updateMoneyHUD(money);
     }
     // remove old text and draw new (simple approach)
     for (let i = 0; i < state.buildings.children.length; i++) {
@@ -501,6 +528,8 @@ function play() {
                     if (state.player.hurt < 0) state.player.hurt = 0;
                     if (state.player.hurt > 150) {
                         console.log("Dead")
+                        money = 0;
+                        updateMoneyHUD(money);
 
                         resetGame();
                     }
