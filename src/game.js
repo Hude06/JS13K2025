@@ -199,7 +199,6 @@ let state = null;
 const g = GA.create(800, 512, () => {
     if (state && typeof state.setup === "function") state.setup();
 }, assets);
-
 state = new State(g);
 GA.plugins(g);
 g.start();
@@ -439,6 +438,7 @@ function placeStars(count, minDist = 100) {
     }
 }
 function menu() {
+
     if (!state.menuBackground && !state.menuText) {
         state.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
         g.stage.addChild(state.menuBackground);

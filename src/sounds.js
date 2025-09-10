@@ -1,5 +1,4 @@
 
-
 export let // ZzFXMicro - Zuper Zmall Zound Zynth - v1.3.1 by Frank Force ~ 1000 bytes
     zzfxV = .3,               // volume
     zzfxX = new AudioContext, // audio context
@@ -18,5 +17,4 @@ export let // ZzFXMicro - Zuper Zmall Zound Zynth - v1.3.1 by Frank Force ~ 1000
                                         createBuffer(1, h, R); p.getChannelData(0).set(k); b = zzfxX.createBufferSource();
             b.buffer = p; b.connect(zzfxX.destination); b.start()
         }
-
 export default zzfx
