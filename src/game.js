@@ -5,8 +5,19 @@ import { zzfxM,zzfxP,zzfx } from "./zzfx.js";'./zzfx.js';
 let money = 0;
 let moneySPRITE = undefined
 let songData = [[[1.8,0,72,,,.2,,4,-2,6,50,.15,,6],[,0,655,,,.09,3,1.65,,,,,.02,3.8,-.1,,.2],[1.2,0,23,,,.2,3,4,,,3,.9,.05],[1.5,0,740,,,.15,2,.2,-.1,-.15,9,.02,,.1,.12,,.06]],[[[3,-1,13,13,13,8,13,,,,,,,,,,,,11,11,11,6,11,,,,,,,,,,,,10,10,10,6,10,,,,,,,,,6,8,10,8,8,8,5,13,,8,8,8,5,13,,,,,,],[,1,25,,25,,,,,,,,,,,,,25,25,,25,,,,,,,25,,,25,,25,25,25,,25,,,,,,,,,,,25,25,25,25,,25,,,,,,,,,,,,,,],[2,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,,13,,25,,13,13,25,13,,13,25,13,13,13,,,13,,25,,13,13,25,13,,13,25,13,13,13,25,,13,,25,,13,13,25,13,,13,25,13,13,13,25,,]],[[3,-1,13,13,13,8,13,,,,,,,,,,,,11,11,11,6,11,,,,,,,,,,,,10,10,10,6,10,,,,,,,,,6,8,10,8,8,8,5,13,,8,8,8,5,13,8,8,8,5,13],[2,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,27,11,,23,,11,11,23,11,,11,23,11,11,11,23,22,18,,30,,18,18,30,18,,18,30,18,18,18,30,22,13,,25,,13,13,25,13,,13,25,13,13,13,25,,],[,1,25,,25,,,,,,,,,,,,,25,25,,25,,,,,,,,,,,,,,25,,25,,,,,,,,,,,25,25,25,25,,25,,,,,,,,,,,,,,],[1,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13,13,13,13,13,13,13,13]],[[3,-1,13,13,13,8,13,,13,15,17,17,15,13,20,20,18,17,18,,,,17,,15,,,,17,,18,,22,22,22,,18,,,,25,25,25,,22,,,18,20,22,20,,,,,,,,,,,,,,,,],[2,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,27,11,,23,,11,11,23,11,,11,23,11,11,11,23,22,18,,30,,18,18,30,18,,18,30,18,18,18,30,22,13,,25,,13,13,25,13,,13,25,13,13,13,25,,],[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13]],[[3,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,,11,,23,,11,11,23,11,,11,23,11,11,11,23,,10,,22,,10,10,22,10,,10,22,10,10,6,8,10,20,25,20,20,25,20,,20,25,20,20,20,25,,20,,],[2,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,,13,,25,,13,13,25,13,,13,25,13,13,13,25,,13,,25,,13,13,25,13,,13,25,13,13,13,25,,13,,25,,13,13,25,13,,13,25,13,13,13,25,,],[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13]],[[3,-1,13,,,,,,8,,17,15,13,,17,15,13,,15,,,,10,13,15,10,13,15,10,13,15,10,13,15,12,,,,,,8,15,,,,,17,15,13,8,13,,,,,,10,8,,20,20,20,20,20,20,20],[2,-1,13,,25,,13,13,25,13,,13,25,13,13,13,25,,15,,27,,15,15,27,15,,15,27,15,15,15,27,32,20,,32,,20,20,32,20,,20,32,20,20,20,32,,13,,25,,13,13,25,20,,20,32,20,20,20,32,,],[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13]],[[3,-1,13,,,,,,8,,17,,,,18,17,15,,18,,,,13,,,,10,,,,6,,,,8,12,15,12,20,,8,12,15,12,20,,22,20,15,,13,,,,,,10,,8,,,,,8,20,8],[2,-1,13,,25,25,13,,25,25,13,,25,25,13,,25,25,15,,27,27,15,,27,27,15,,27,27,15,,27,27,20,,32,32,20,,32,32,20,,32,32,20,,32,32,13,,25,25,13,,25,25,20,,32,32,20,,32,34],[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13]],[[3,-1,13,,,,,,8,,17,,,,18,17,15,,18,,,,13,,,,10,,,,6,,,,8,12,15,12,20,,8,12,15,12,20,,22,20,15,,13,,,,,,10,,8,,,,,8,20,8],[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13]],[[,1,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,,,25,25,,25,25,,,,,,25,,,,25,,,25,,,,25,25,25,25,25],[1,1,,,,,13,,,,,,,,13,,,,,,,,13,,,,,,,,13,,13,,,,,,13,,,,,,,,13,,,,,,,,13,13,,13,,13,13,13,13,13,13,13]]],[0,1,2,2,3,3,2,2,4,4,5,6,6,7,2,2,3]]
-const buffer = zzfxM(...songData);    // Generate the sample data
-const node = zzfxP(...buffer);        // Play the song
+function startBackgroundMusic() {
+    const buffer = zzfxM(...songData);
+    const node = zzfxP(...buffer);
+    node.loop = true;
+
+    // Optional: store globally so you can stop/pause later
+    window.bgMusicNode = node;
+}
+
+// Call it right after canvas is ready
+
+let LEVELON = 0
+let LEVELONSPRITE = undefined
 class State {
     constructor(g) {
         this.g = g
@@ -22,6 +33,7 @@ class State {
         this.worldWidth = 0;
         this.menuStage = 1
         this.menuText = undefined
+        this.menuText2 = undefined
         this.menuBackground = undefined
     }
     destroy() {
@@ -47,7 +59,6 @@ class State {
 
     setup() {
         const g = this.g; // local alias for convenience
-
         // create groups and sprites now that assets are loaded
         this.game = g.group();         // top-level game group
         this.buildings = g.group();
@@ -66,11 +77,7 @@ class State {
         this.player.speed = 3;
         this.player.hurt = 150;
         this.player.fallSpeed = 0;
-        this.randoX = ((Math.random()*5)+1)
-        console.log("WHAT IS THIS?"getBlockBelow(this.randoX)
-)
-        this.player.x = g.canvas.width / 2 - this.player.width / 2;
-        this.levelTimeLimit = 30
+        this.levelTimeLimit = 30 - LEVELON*(Math.random()*5)
         this.dropPoint = g.sprite("./Elevator.png");
 
         // this.player.y = blockUnderPlayer
@@ -84,6 +91,11 @@ class State {
 
         // create towers/buildings AFTER you have groups
         createLevel(20,5,this.topTowers,this.mouses,this.dropPoint,this.player)
+        this.randoX = (Math.floor(Math.random()*5)+1)*32
+        const safeBlock = getSafeSpawnBlock();
+        console.log(safeBlock)
+        this.player.x = safeBlock.x + safeBlock.width / 2 - this.player.width / 2;
+        this.player.y = safeBlock.y - this.player.height; // spawn on top
         // world width depends on topTowers
         const blockUnderPlayer = getBlockBelow(this.player.x);
         console.log("block is ",getBlockBelow(this.player.x))
@@ -139,16 +151,16 @@ class State {
         };
 
         // similarly for arrows
-        g.key.leftArrow.press = () => { playerMoveLeft(); };
+        g.key.leftArrow.press = () => { if (g.state === play) { playerMoveLeft();} };
         g.key.leftArrow.release = () => {
             if (!g.key.rightArrow.isDown) this.player.vx = 0;
         };
-        g.key.rightArrow.press = () => { playerMoveRight(); };
+        g.key.rightArrow.press = () => { if (g.state === play) {playerMoveRight();} };
         g.key.rightArrow.release = () => {
             if (!g.key.leftArrow.isDown) this.player.vx = 0;
         };
 
-        g.key.upArrow.press = () => { playerMoveUp(); };
+        g.key.upArrow.press = () => { if (g.state === play){playerMoveUp();} };
         g.key.space.press = () => {
             if (g.state === play) {
                 playerMoveUp();
@@ -158,10 +170,20 @@ class State {
                 console.log(money)
             }
             };
-        g.key.w.press = () => { playerMoveUp(); };
+        g.key.w.press = () => { if (g.state == play){playerMoveUp();} };
         console.log(g.state)
-        g.key.r.press = () => { resetGame()};
+        g.key.r.press = () => { 
+            if (g.state === play) {
+                console.log("WE ARE IN PLAY")
+                resetGame(true,false)         
+                money = 0;
+                LEVELON = 0;
+                updateMoneyHUD(money);
+            }
+
+    };
         g.key.q.release = async () => {
+            if (g.state === play) {
             if (this.player.dropingElevator) {
                 let count = this.player.layingMouses.children.length;
                 let m = this.player.layingMouses.children[count - 1];
@@ -169,14 +191,17 @@ class State {
                 this.player.canDropMice = false
                 this.player.moveSpeed = Math.round(this.player.speed - (this.player.layingMouses.children.length / 6));
                 console.log(this.player.moveSpeed)
-                playJump()
+                dropOffMiceSound()
                 money += 1;
                 console.log("money ->", money);
                 updateMoneyHUD(money);
                 console.log("MNouse left",this.mouses.children.length)
                 if (this.mouses.children.length === 0 && this.player.layingMouses.children.length === 0) {
                     console.log("reset")
-                    resetGame();
+                    resetGame(true,true);
+                    LEVELON += 1
+                    updateLevelScreenHUD(LEVELON)
+                    playNewLevel();
                 }
 
             } else {
@@ -194,6 +219,7 @@ class State {
                 }
             }
         };
+    }
     }
 }
 const assets = [
@@ -219,12 +245,57 @@ g.canvas.ctx.imageSmoothingEnabled = false;
 console.log(g.canvas.ctx.imageSmoothingEnabled)
 g.canvas.style.border = "2px black solid";
 g.backgroundColor = "black";
+window.addEventListener("keydown", () => startBackgroundMusic(), { once: true });
+window.addEventListener("mousedown", () => startBackgroundMusic(), { once: true });
 function playJump() {
     zzfx(...[, , 488, .02, .01, .07, , .7, , 162, , , , , , , , .82, .04]);
+}
+function playNewLevel() {
+    zzfx(...[1.2,,222,.02,.26,.27,,1.9,-1.9,.1,-129,.19,,.1,,,.14,.95,.18,.01]); // Powerup 48 - Mutation 3
+}
+function dropOffMiceSound() {
+    zzfx(...[,,430,,.01,.15,2,1.5,-0.1,141.9,,,,.1,,,,.89,.02]); // Pickup 75 - Mutation 5
 }
 window.addEventListener("resize", function(event){ 
 g.scaleToWindow();
 });
+function clearMenuText() {
+    if (state.menuText) {
+        try { g.remove(state.menuText); } catch(e) {}
+        state.menuText = null;
+    }
+    if (state.menuText2) {
+        try { g.remove(state.menuText2); } catch(e) {}
+        state.menuText2 = null;
+    }
+                    // if (this.menuStage === 0) {
+                //     resetGame(true,false)
+                //         console.log("we are resetting right?")
+                // }
+}
+function getSafeSpawnBlock() {
+    let safeBlocks = [];
+    const towers = state.topTowers;
+    let block;
+    for (let i = 0; i < state.topTowers.length; i++) {
+            console.log(state.topTowers[i])
+            if (state.topTowers[i] !== null) {
+                console.log ("real block")
+                    safeBlocks.push(state.topTowers[i])
+            }
+    }
+    block = safeBlocks[Math.floor(Math.random()*safeBlocks.length)];
+    console.log("BLOCK IS ISISISI",block)
+    return block;
+;
+}
+function updateLevelScreenHUD(level) {
+    if (LEVELONSPRITE !== undefined) {
+        try { g.remove(LEVELONSPRITE); } catch(e) { /* ignore */ }
+    }
+    LEVELONSPRITE = drawText(String(level) + " level", g.canvas.width - 500, 16, 32, 32);
+    g.stage.addChild(LEVELONSPRITE);
+}
 function updateMoneyHUD(newMoney) {
   // remove old sprite if present
   if (typeof moneySPRITE !== "undefined" && moneySPRITE) {
@@ -233,13 +304,25 @@ function updateMoneyHUD(newMoney) {
   moneySPRITE = drawText(String(newMoney) + " money", g.canvas.width - 785, 16, 32, 32);
   g.stage.addChild(moneySPRITE);
 }
-function resetGame() {
-    g.state = menu
+function resetGame(skipMenu = false,r) {
     state.destroy()
     console.log("active cameras count:", (window.__cameras || []).length);
     console.log("Cameras:", window.__cameras);
     state = new State(g)
     state.setup();
+    if (skipMenu) {
+        if (r === false) {
+            LEVELON = 0
+            money = 0;
+            updateMoneyHUD(money);
+            updateLevelScreenHUD(LEVELON)
+
+        }
+        g.state = play;          // start game directly
+    } else {
+        g.state = menu;          // show menu normally
+        state.menuStage = 0
+    }
 }
 function newMouse(x, y) {
     let mouseSprite = g.sprite("./Mouse_Stand.png")
@@ -268,58 +351,46 @@ function getBlockBelow(x) {
 
         return closestBlock;
 }
-function createLevel(length,mouseAmount,topTowers,mouses,dropPoint,player) {
-        for (let i = 0; i < length; i++) {
-            // call your newBuilding function but make sure it uses `g` and `this.buildings`
-            topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1));
-        }
-        for (let i = 0; i < mouseAmount; i++) {
-            let mouse = newMouse(i * 64, topTowers[i].y - 22);
-            mouses.addChild(mouse);
-        }
+function createLevel(length, mouseAmount, topTowers, mouses, dropPoint, player) {
+    // Create towers
+    for (let i = 0; i < length; i++) {
+        topTowers.push(newBuilding(i * 64, g.canvas.height, Math.floor(Math.random() * 2) + 1));
+    }
 
-        // Get the player's building position (rounded to the closest building)
-        const playerBuildingIndex = Math.floor(player.x / 64);
+    // Place mice
+    const placedMice = [];
+    for (let i = 0; i < mouseAmount; i++) {
+        let safeBlock = null;
+        let tries = 0;
 
-        // Set the minimum and maximum distance from the player
-        const minDistance = 5;
-        const maxDistance = 10;
+        // Keep trying until we find a block not in a pit and not occupied
+        while (tries < 50) {
+            safeBlock = getSafeSpawnBlock();
 
-        // Calculate the building index range (at least 5, at most 10 buildings away)
-        const minBuilding = Math.max(0, playerBuildingIndex - maxDistance);
-        const maxBuilding = Math.min(topTowers.length - 1, playerBuildingIndex + maxDistance);
-
-        // Randomly select a building that is at least 5 buildings away
-        let validBuildingFound = false;
-        let selectedBuilding = null;
-
-        while (!validBuildingFound) {
-            // Randomly choose a building that is within the distance range
-            let randomBuildingIndex = Math.floor(Math.random() * (maxBuilding - minBuilding + 1)) + minBuilding;
-
-            // Ensure it's at least 5 buildings away (either to the left or right)
-            if ((randomBuildingIndex - playerBuildingIndex) < minDistance) {
-                continue; // If too close, try again
+            // Check for pit
+            if (safeBlock.height <= 1) { 
+                tries++;
+                continue;
             }
 
-            // Get the top block of the building
-            selectedBuilding = topTowers[randomBuildingIndex];
+            // Check if a mouse is already on this block
+            const occupied = placedMice.some(m => m.x === safeBlock.x && m.y === safeBlock.y - 22);
+            if (!occupied) break;
 
-            // Check if the building is a pit (height <= 1)
-            const isPit = selectedBuilding.height <= 1;
-
-            if (!isPit) {
-                validBuildingFound = true; // Valid building found
-            }
+            tries++;
         }
 
-        // Now place the drop point on top of the valid building
-        dropPoint.x = selectedBuilding.x + selectedBuilding.width / 2 - dropPoint.width / 2;
-        dropPoint.y = selectedBuilding.y - dropPoint.height;
+        if (!safeBlock) continue;
 
+        const mouse = newMouse(safeBlock.x, safeBlock.y - 22);
+        mouses.addChild(mouse);
+        placedMice.push(mouse);
+    }
 
-        // Add the drop point to the game
-
+    // Place drop point (your existing code)
+    const safeblock = getSafeSpawnBlock();
+    dropPoint.x = safeblock.x + safeblock.width / 2 - dropPoint.width / 2;
+    dropPoint.y = safeblock.y - dropPoint.height;
 }
 function getBuildingTopUnderPlayer(player) {
     let topBlock = null;
@@ -371,22 +442,19 @@ function drawText(text, x,y,w,h) {
 
     return textG;
 }
-function newBuilding(x, y, roof) {
+function newBuilding(x, y, roof,isFirst = false) {
     let roofsrc = roof === 1 ? "Roof1.png" : "Roof2.png";
     let topBlock = null;
     let pit = Math.floor(Math.random() * 10); // 0–9
-    let isPit = false
+    if (isFirst) pit = -1; // no pit for the first building
     // Get the height of the previous building, or 10 if it's the first
     let leftBuildingHeight = state.buildings.lastHeight || 10;
     // New building height can only differ by ±2
     let minHeight = Math.max(1, leftBuildingHeight - 2);
-    let maxHeight = leftBuildingHeight + 3;
-    if (maxHeight === 20) {
-        maxHeight = leftBuildingHeight - 3
-    }
+    let maxHeight = Math.min(15, leftBuildingHeight + 3); // clamp to 10 as max
 
     // Pick random height within allowed range
-    let height = (Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight);
+    let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
     while(height === 1) {
         minHeight = Math.max(1, leftBuildingHeight - 2);
         maxHeight = leftBuildingHeight + 2;
@@ -394,7 +462,6 @@ function newBuilding(x, y, roof) {
     }
     if (pit === 3) {
         height = 1
-        isPit = true
     }
     for (let i = 0; i < height; i++) {
         let block = g.sprite("./" + roofsrc);
@@ -403,9 +470,11 @@ function newBuilding(x, y, roof) {
         block.x = x;
         block.y = y - (i * 32);
         state.buildings.addChild(block);
-
         if (!topBlock || block.y < topBlock.y) {
             topBlock = block;
+        }
+        if (height === 1) {
+            topBlock = null
         }
     }
 
@@ -450,30 +519,39 @@ function placeStars(count, minDist = 100) {
     }
 }
 function menu() {
-
-    if (!state.menuBackground && !state.menuText) {
+    clearMenuText();
+    if (!state.menuBackground) {
         state.menuBackground = g.rectangle(g.canvas.width * 50, g.canvas.height * 100, "black", "none", 0, -1000, -500);
         g.stage.addChild(state.menuBackground);
+    }
+
+    if (state.menuStage === 0) {
+        state.menuText = drawText("You had " + money + " mice as passengers", 200, 220, 16, 16);
+        state.menuText2 = drawText("Press space to restart", 200, 250, 16, 16);
+        g.stage.addChild(state.menuText);
+        g.stage.addChild(state.menuText2);
+    } else if (state.menuStage === 1) {
+        LEVELON = 0
+        money = 0;
+        updateMoneyHUD(money);
+        updateLevelScreenHUD(LEVELON)
         state.menuText = drawText("PRESS SPACE!", 220, 220, 32, 32);
         g.stage.addChild(state.menuText);
+    } else if (state.menuStage === 2) {
+        state.menuText = drawText("CATS CARGO", 240, 220, 32, 32);
+        g.stage.addChild(state.menuText);
+    } else if (state.menuStage === 3) {
+        state.menuText = drawText("JS13K By JUDE HILL", 110, 220, 32, 32);
+        g.stage.addChild(state.menuText);
+    } else if (state.menuStage === 4) {
+        g.stage.removeChild(state.menuBackground);
+        state.menuBackground = null;
+        state.menuText = null;
+        g.state = play;
+        updateLevelScreenHUD(LEVELON);
     }
-        if (state.menuStage === 2) {
-            g.remove(state.menuText)
-            state.menuText = drawText("CATS CARGO", 240, 220, 32, 32);
-        }
-        if (state.menuStage === 3) {
-            g.remove(state.menuText)
-            state.menuText = drawText("JS13K By JUDE HILL", 110, 220, 32, 32);
-        }
-        if (state.menuStage === 4) {
-            g.remove(state.menuText)
-            g.stage.remove(state.menuBackground);
-            state.menuBackground = null
-            state.menuText = null
-            state.menuStage = 1
-            g.state = play
-        }
 }
+
 function playerMoveRight() {
     state.player.vx = state.player.moveSpeed;
     state.player.scaleX = 1; // Reset the player to face right
@@ -504,7 +582,7 @@ function playerMoveUp() {
     }
     if (state.player.grounded) {
         console.log("Jumping")
-        state.player.vy -= 10; // Jump strength
+        state.player.vy -= 11; // Jump strength
         state.player.grounded = false
     }
 
@@ -518,9 +596,7 @@ function play() {
     state.timeLimitSprite = drawText((state.levelTimeLimit) + "", g.canvas.width - 90, 16, 32, 32)
 
     if (state.levelTimeLimit < 0) {
-        resetGame();
-        money = 0;
-        updateMoneyHUD(money);
+        resetGame(false,true);
     }
     // remove old text and draw new (simple approach)
     for (let i = 0; i < state.buildings.children.length; i++) {
@@ -540,10 +616,7 @@ function play() {
                     if (state.player.hurt < 0) state.player.hurt = 0;
                     if (state.player.hurt > 150) {
                         console.log("Dead")
-                        money = 0;
-                        updateMoneyHUD(money);
-
-                        resetGame();
+                        resetGame(false,true);
                     }
 
 
@@ -585,7 +658,7 @@ function play() {
             state.player.layingMouses.addChild(layingMouse);
             console.log(state.player.layingMouses.children)
             state.mouses.removeChild(mouse);
-
+            dropOffMiceSound()
             state.player.moveSpeed = Math.round(state.player.speed - (state.player.layingMouses.children.length/6))
             console.log("Move Speed = ", state.player.moveSpeed)
 
