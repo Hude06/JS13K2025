@@ -2675,16 +2675,22 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
 
   */
 
-  function makeKeys() {
-    var o = {};
-    //Assign the arrow keys and the space bar
-    o.leftArrow = keyboard(37);
-    o.upArrow = keyboard(38);
-    o.rightArrow = keyboard(39);
-    o.downArrow = keyboard(40);
-    o.space = keyboard(32);
-    return o;
-  }
+    function makeKeys() {
+        var o = {};
+        //Assign the arrow keys and the space bar
+        o.leftArrow = keyboard(37);
+        o.upArrow = keyboard(38);
+        o.rightArrow = keyboard(39);
+        o.downArrow = keyboard(40);
+        o.space = keyboard(32);
+        o.a = keyboard(65)
+        o.d = keyboard(68)
+        o.w = keyboard(87)
+        o.s = keyboard(83)
+        o.q = keyboard(81)
+        o.r = keyboard(82)
+        return o;
+    }
 
   //### byLayer
   //`byLayer` is an array sort method that's called when a sprite's

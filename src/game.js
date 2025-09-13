@@ -1,5 +1,5 @@
 import GA from "./ga.js";
-import "./plugins.js"; // if plugins extend GA
+import plugins from "./plugins.js"; // if plugins extend GA
 import zzfx from "./sounds.js"
 let money = 0;
 let moneySPRITE = undefined
@@ -36,6 +36,9 @@ class State {
     this.stars = null;
     this.dropPoint = null;
     this.game = null;
+    if (this.camera) {
+    this.camera = null;
+}
     };
 
     setup() {
@@ -156,7 +159,7 @@ class State {
                 let m = this.player.layingMouses.children[count - 1];
                 this.player.layingMouses.removeChild(m);
                 this.player.canDropMice = false
-                this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
+                this.player.moveSpeed = Math.round(this.player.speed - (this.player.layingMouses.children.length / 6));
                 console.log(this.player.moveSpeed)
                 playJump()
                 money += 1;
@@ -176,7 +179,7 @@ class State {
                     this.player.layingMouses.removeChild(firstMouse);
                     let mouse = newMouse(this.player.x - 25, getBuildingTopUnderPlayer(this.player).y - 22);
                     state.mouses.addChild(mouse);
-                    this.player.moveSpeed = this.player.speed - (this.player.layingMouses.children.length / 5);
+                    this.player.moveSpeed = Math.round(this.player.speed - (this.player.layingMouses.children.length / 6));
 
 
                     console.log(this.player.moveSpeed)
@@ -200,7 +203,8 @@ const g = GA.create(800, 512, () => {
     if (state && typeof state.setup === "function") state.setup();
 }, assets);
 state = new State(g);
-GA.plugins(g);
+// GA.plugins(g);
+plugins(g)
 g.start();
 g.scaleToWindow();
 g.canvas.ctx.imageSmoothingEnabled = false;
@@ -225,7 +229,7 @@ function resetGame() {
     g.state = menu
     state.destroy()
     console.log("active cameras count:", (window.__cameras || []).length);
-
+    console.log("Cameras:", window.__cameras);
     state = new State(g)
     state.setup();
 }
@@ -574,7 +578,7 @@ function play() {
             console.log(state.player.layingMouses.children)
             state.mouses.removeChild(mouse);
 
-            state.player.moveSpeed = state.player.speed - (state.player.layingMouses.children.length/6)
+            state.player.moveSpeed = Math.round(state.player.speed - (state.player.layingMouses.children.length/6))
             console.log("Move Speed = ", state.player.moveSpeed)
 
         }); 
