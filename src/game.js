@@ -223,7 +223,7 @@ function updateMoneyHUD(newMoney) {
   if (typeof moneySPRITE !== "undefined" && moneySPRITE) {
     try { g.remove(moneySPRITE); } catch(e) { /* ignore */ }
   }
-  moneySPRITE = drawText(String(newMoney) + " money", g.canvas.width - 800, 16, 32, 32);
+  moneySPRITE = drawText(String(newMoney) + " money", g.canvas.width - 785, 16, 32, 32);
   g.stage.addChild(moneySPRITE);
 }
 function resetGame() {
