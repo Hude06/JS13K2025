@@ -95,8 +95,8 @@ function plugins(ga) {
           }
         },
         centerOver: function (sprite) {
-          this.x = Math.round((sprite.x + sprite.halfWidth) - (this.width / 2));
-          this.y = Math.round((sprite.y + sprite.halfHeight) - (this.height / 2));
+          state.game.x = -sprite.x + g.canvas.width / 2;
+          state.game.y = -sprite.y  + g.canvas.height / 2;
         }
       };
 

@@ -211,21 +211,11 @@ GA.create = function (width, height, setup, assetsToLoad, load) {
   scale the Ga canvas to fit into the maximum size of the browser
   window.
 
-      var scaleX = g.canvas.width / window.innerWidth,
-          scaleY = g.canvas.height / window.innerHeight,
-          //Or, scale to the height
-          //scaleX = window.innerWidth / g.canvas.width,
-          //scaleY = window.innerHeight / g.canvas.height,
-          scaleToFit = Math.min(scaleX, scaleY);
 
-      g.canvas.style.transformOrigin = "0 0";
-      g.canvas.style.transform = "scale(" + scaleToFit + ")";
-
-      //Set Ga's scale
-      g.scale = scaleToFit;
 
   */
   //The game's screen's scale.
+  
   ga.scale = 1;
 
   /*

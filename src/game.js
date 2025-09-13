@@ -104,6 +104,7 @@ class State {
 
         // camera
         this.camera = g.worldCamera(this.game, g.canvas);
+        this.camera.y = 400
 
         // set keyboard handlers
         this.keyboard();
@@ -596,5 +597,6 @@ function play() {
     }
 
     // 7️⃣ Center camera on player
-    state.camera.centerOver(state.player);
+        state.game.x = -state.player.x + g.canvas.width / 2;
+    state.game.y = -state.player.y  + g.canvas.height / 2;
 }
